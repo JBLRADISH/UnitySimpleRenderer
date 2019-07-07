@@ -1,15 +1,16 @@
-﻿#include "app.h"
+﻿#include "renderer.h"
 #include "draw.h"
 
 void Input();
 void Render();
 
+renderer render;
 bool quit = false;
 SDL_Event e;
 
 int main(int argc, char* args[])
 {
-	if (!sdlInit())
+	if (!render.sdlInit("Renderer", 800, 600, 30))
 	{
 		return 0;
 	}
@@ -20,13 +21,13 @@ int main(int argc, char* args[])
 		Input();
 		Render();
 		Uint32 endFrame = SDL_GetTicks();
-		if (endFrame - startFrame < ping)
+		if (endFrame - startFrame < render.ping)
 		{
-			SDL_Delay(ping - endFrame + startFrame);
+			SDL_Delay(render.ping - endFrame + startFrame);
 		}
 	}
 
-	SDL_DestroyWindow(window);
+	SDL_DestroyWindow(render.window);
 	SDL_Quit();
 
 	return 0;
@@ -54,11 +55,7 @@ void Input()
 
 void Render()
 {
-	SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0xFF, 0xFF, 0xFF));
-	for (int i = 400; i <= 500; i++)
-	{
-		DrawPoint(i, 400, &Color(255, 0, 0));
-	}
-	DrawHLine(400, 500, 500, &Color(255, 255, 0));
-	SDL_UpdateWindowSurface(window);
+	DrawClearColor(render.screenSurface, &Color(255, 0, 0));
+	DrawLine(render.screenSurface, 100, 200, 400, 500, &Color(0, 0, 0));
+	SDL_UpdateWindowSurface(render.window);
 }

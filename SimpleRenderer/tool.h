@@ -1,7 +1,7 @@
 #pragma once
 
 #include "color.h"
-#include "global_extern.h"
+#include "SDL.h"
 
 Uint32 Color2Uint32(Color* c)
 {
@@ -19,8 +19,8 @@ inline void ASM_MEMSET_DWORD(void* dest, Uint32 data, int count)
 	}
 }
 
-Uint32* GetPixelAddress(int x, int y)
+Uint32* GetPixelAddress(SDL_Surface* surface, int x, int y)
 {
-	Uint32* pixels = (Uint32*)screenSurface->pixels;
-	return pixels + y * screenSurface->w + x;
+	Uint32* pixels = (Uint32*)surface->pixels;
+	return pixels + y * (surface->pitch >> 2) + x;
 }

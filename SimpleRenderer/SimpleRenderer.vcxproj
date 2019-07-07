@@ -134,11 +134,9 @@
     <None Include="SDL2.dll" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="app.h" />
+    <ClInclude Include="renderer.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="draw.h" />
-    <ClInclude Include="global.h" />
-    <ClInclude Include="global_extern.h" />
     <ClInclude Include="tool.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

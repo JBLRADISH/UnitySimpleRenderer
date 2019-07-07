@@ -26,9 +26,6 @@
     <None Include="SDL2.dll" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="app.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="tool.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -38,10 +35,7 @@
     <ClInclude Include="color.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="global.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="global_extern.h">
+    <ClInclude Include="renderer.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
