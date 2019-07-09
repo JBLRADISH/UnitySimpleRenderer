@@ -138,7 +138,6 @@
     <ClInclude Include="color.h" />
     <ClInclude Include="draw.h" />
     <ClInclude Include="tool.h" />
-    <ClInclude Include="vector4.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
