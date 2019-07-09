@@ -1,6 +1,10 @@
 #pragma once
 
 #include <math.h>
+#include <xmmintrin.h>
+
+#define SIMD_ASM 1
+#define SIMD_SHUFFLE(srch, srcl, desth, destl) (srch << 6) | (srcl << 4) | (desth << 2) | (destl)
 
 class Vector3
 {
@@ -15,9 +19,12 @@ public:
 			float z;
 			float w;
 		};
+		__m128 m128;
 	};
 
 	static Vector3 zero;
+
+	Vector3() = default;
 
 	Vector3(float x, float y, float z, float w = 0.0f)
 	{
@@ -96,51 +103,167 @@ inline bool Vector3::operator!=(const Vector3& v)
 //向量加法
 inline Vector3 Vector3::operator+(const Vector3& v)
 {
+#ifdef SIMD_ASM
+	__declspec(align(16)) Vector3 res;
+	_asm
+	{
+		mov esi, this;
+		mov edi, v;
+		movaps xmm0, [esi];
+		addps xmm0, [edi];
+		movaps res, xmm0;
+	}
+	return res;
+#else
 	return Vector3(x + v.x, y + v.y, z + v.z, w + v.w);
+#endif
 }
 
 //向量减法
 inline Vector3 Vector3::operator-(const Vector3& v)
 {
+#ifdef SIMD_ASM
+	__declspec(align(16)) Vector3 res;
+	_asm
+	{
+		mov esi, this;
+		mov edi, v;
+		movaps xmm0, [esi];
+		subps xmm0, [edi];
+		movaps res, xmm0;
+	}
+	return res;
+#else
 	return Vector3(x - v.x, y - v.y, z - v.z, w - v.w);
+#endif
 }
 
 //向量乘法
 inline Vector3 Vector3::operator*(float f)
 {
+#ifdef SIMD_ASM
+	__declspec(align(16)) Vector3 res(f, f, f, f);
+	_asm
+	{
+		mov esi, this;
+		movaps xmm0, [esi];
+		mulps xmm0, res.m128;
+		movaps res, xmm0;
+	}
+	return res;
+#else
 	return Vector3(x * f, y * f, z * f, w * f);
+#endif
 }
 
 //向量除法
 inline Vector3 Vector3::operator/(float f)
 {
+#ifdef SIMD_ASM
+	__declspec(align(16)) Vector3 res(f, f, f, f);
+	_asm
+	{
+		mov esi, this;
+		movaps xmm0, [esi];
+		divps xmm0, res.m128;
+		movaps res, xmm0;
+	}
+	return res;
+#else
 	return Vector3(x / f, y / f, z / f, w / f);
+#endif
 }
 
 //各分量相乘
 inline Vector3& Vector3::Scale(const Vector3& v)
 {
+#ifdef SIMD_ASM
+	__declspec(align(16)) Vector3 res;
+	_asm
+	{
+		mov esi, this;
+		mov edi, v;
+		movaps xmm0, [esi];
+		mulps xmm0, [edi];
+		movaps res, xmm0;
+	}
+	*this = res;
+	return *this;
+#else
 	x *= v.x;
 	y *= v.y;
 	z *= v.z;
 	w *= v.w;
 	return *this;
+#endif
 }
 
 inline Vector3 Vector3::Scale(const Vector3& v1, const Vector3& v2)
 {
+#ifdef SIMD_ASM
+	__declspec(align(16)) Vector3 res;
+	_asm
+	{
+		mov esi, v1;
+		mov edi, v2;
+		movaps xmm0, [esi];
+		mulps xmm0, [edi];
+		movaps res, xmm0;
+	}
+	return res;
+#else
 	return Vector3(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z, v1.w * v2.w);
+#endif
 }
 
 //向量长度
 inline float Vector3::Magnitude()
 {
+#ifdef SIMD_ASM
+	__declspec(align(16)) Vector3 res;
+	_asm
+	{
+		mov esi, this;
+		movaps xmm0, [esi];
+		mulps xmm0, xmm0;
+		movaps xmm1, xmm0;
+		shufps xmm1, xmm0, SIMD_SHUFFLE(0x01, 0x00, 0x03, 0x02);
+		addps xmm1, xmm0;
+		shufps xmm0, xmm1, SIMD_SHUFFLE(0x02, 0x03, 0x00, 0x01);
+		addps xmm0, xmm1;
+		movaps res, xmm0;
+		//sqrtss 只计算低32位的平方根 sqrtps会计算4个32位的平方根
+		sqrtss xmm0, res.z;
+		movaps res, xmm0;
+	}
+	return res.x;
+#else
 	return sqrtf(Vector3::Dot(*this, *this));
+#endif
 }
 
 inline float Vector3::Magnitude(const Vector3& v)
 {
+#ifdef SIMD_ASM
+	__declspec(align(16)) Vector3 res;
+	_asm
+	{
+		mov esi, v;
+		movaps xmm0, [esi];
+		mulps xmm0, xmm0;
+		movaps xmm1, xmm0;
+		shufps xmm1, xmm0, SIMD_SHUFFLE(0x01, 0x00, 0x03, 0x02);
+		addps xmm1, xmm0;
+		shufps xmm0, xmm1, SIMD_SHUFFLE(0x02, 0x03, 0x00, 0x01);
+		addps xmm0, xmm1;
+		movaps res, xmm0;
+		sqrtss xmm0, res.z;
+		movaps res, xmm0;
+	}
+	return res.x;
+#else
 	return sqrtf(Vector3::Dot(v, v));
+#endif
 }
 
 //向量长度平方
@@ -181,13 +304,47 @@ inline Vector3 Vector3::normalized()
 //Lerp插值
 inline Vector3 Vector3::Lerp(const Vector3& v1, const Vector3& v2, float t)
 {
+#ifdef SIMD_ASM
+	__declspec(align(16)) Vector3 res(t, t, t, t);
+	_asm
+	{
+		mov esi, v1;
+		mov edi, v2;
+		movaps xmm0, [edi];
+		movaps xmm1, [esi];
+		subps xmm0, xmm1;
+		mulps xmm0, res.m128;
+		addps xmm0, xmm1;
+		movaps res, xmm0;
+	}
+	return res;
+#else
 	return Vector3(v1.x + (v2.x - v1.x) * t, v1.y + (v2.y - v1.y) * t, v1.z + (v2.z - v1.z) * t, v1.w + (v2.w - v1.w) * t);
+#endif
 }
 
 //点积
 inline float Vector3::Dot(const Vector3& v1, const Vector3& v2)
 {
+#ifdef SIMD_ASM
+	__declspec(align(16)) Vector3 res;
+	_asm
+	{
+		mov esi, v1;
+		mov edi, v2;
+		movaps xmm0, [esi];
+		mulps xmm0, [edi];
+		movaps xmm1, xmm0;
+		shufps xmm1, xmm0, SIMD_SHUFFLE(0x01, 0x00, 0x03, 0x02);
+		addps xmm1, xmm0;
+		shufps xmm0, xmm1, SIMD_SHUFFLE(0x02, 0x03, 0x00, 0x01);
+		addps xmm0, xmm1;
+		movaps res, xmm0;
+	}
+	return res.z;
+#else
 	return (float)((double)v1.x * (double)v2.x + (double)v1.y * (double)v2.y + (double)v1.z * (double)v2.z + (double)v1.w * (double)v2.w);
+#endif
 }
 
 //向量距离
