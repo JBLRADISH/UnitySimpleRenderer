@@ -38,7 +38,7 @@
     <ClInclude Include="renderer.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="vector4.h">
+    <ClInclude Include="vector3.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
