@@ -46,19 +46,13 @@ public:
 	//拷贝构造
 	Vector3(const Vector3& v)
 	{
-		x = v.x;
-		y = v.y;
-		z = v.z;
-		w = v.w;
+		memcpy(this, (void*)& v, sizeof(Vector3));
 	}
 
 	//赋值运算符重载
 	Vector3& operator=(const Vector3& v)
 	{
-		x = v.x;
-		y = v.y;
-		z = v.z;
-		w = v.w;
+		memcpy(this, (void*)& v, sizeof(Vector3));
 		return *this;
 	}
 
@@ -180,7 +174,19 @@ inline Vector3 Vector3::operator*(float f)
 
 inline Vector3 operator*(float f, const Vector3& v)
 {
+#ifdef SIMD_ASM
+	__declspec(align(16)) Vector3 res(f, f, f, f);
+	_asm
+	{
+		mov esi, v;
+		movaps xmm0, [esi];
+		mulps xmm0, res.m128;
+		movaps res, xmm0;
+	}
+	return res;
+#else
 	return Vector3(v.x * f, v.y * f, v.z * f, v.w * f);
+#endif
 }
 
 //向量除法
