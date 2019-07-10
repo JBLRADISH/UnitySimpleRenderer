@@ -119,134 +119,45 @@ inline bool Vector3::operator!=(const Vector3& v)
 //向量加法
 inline Vector3 Vector3::operator+(const Vector3& v)
 {
-#ifdef SIMD_ASM
-	__declspec(align(16)) Vector3 res;
-	_asm
-	{
-		mov esi, this;
-		mov edi, v;
-		movaps xmm0, [esi];
-		addps xmm0, [edi];
-		movaps res, xmm0;
-	}
-	return res;
-#else
 	return Vector3(x + v.x, y + v.y, z + v.z, w + v.w);
-#endif
 }
 
 //向量减法
 inline Vector3 Vector3::operator-(const Vector3& v)
 {
-#ifdef SIMD_ASM
-	__declspec(align(16)) Vector3 res;
-	_asm
-	{
-		mov esi, this;
-		mov edi, v;
-		movaps xmm0, [esi];
-		subps xmm0, [edi];
-		movaps res, xmm0;
-	}
-	return res;
-#else
 	return Vector3(x - v.x, y - v.y, z - v.z, w - v.w);
-#endif
 }
 
 //向量乘法
 inline Vector3 Vector3::operator*(float f)
 {
-#ifdef SIMD_ASM
-	__declspec(align(16)) Vector3 res(f, f, f, f);
-	_asm
-	{
-		mov esi, this;
-		movaps xmm0, [esi];
-		mulps xmm0, res.m128;
-		movaps res, xmm0;
-	}
-	return res;
-#else
 	return Vector3(x * f, y * f, z * f, w * f);
-#endif
 }
 
 inline Vector3 operator*(float f, const Vector3& v)
 {
-#ifdef SIMD_ASM
-	__declspec(align(16)) Vector3 res(f, f, f, f);
-	_asm
-	{
-		mov esi, v;
-		movaps xmm0, [esi];
-		mulps xmm0, res.m128;
-		movaps res, xmm0;
-	}
-	return res;
-#else
 	return Vector3(v.x * f, v.y * f, v.z * f, v.w * f);
-#endif
 }
 
 //向量除法
 inline Vector3 Vector3::operator/(float f)
 {
-#ifdef SIMD_ASM
-	__declspec(align(16)) Vector3 res(f, f, f, f);
-	_asm
-	{
-		mov esi, this;
-		movaps xmm0, [esi];
-		divps xmm0, res.m128;
-		movaps res, xmm0;
-	}
-	return res;
-#else
 	return Vector3(x / f, y / f, z / f, w / f);
-#endif
 }
 
 //各分量相乘
 inline Vector3& Vector3::Scale(const Vector3& v)
 {
-#ifdef SIMD_ASM
-	__declspec(align(16)) Vector3 res;
-	_asm
-	{
-		mov esi, this;
-		mov edi, v;
-		movaps xmm0, [esi];
-		mulps xmm0, [edi];
-		movaps res, xmm0;
-	}
-	*this = res;
-	return *this;
-#else
 	x *= v.x;
 	y *= v.y;
 	z *= v.z;
 	w *= v.w;
 	return *this;
-#endif
 }
 
 inline Vector3 Vector3::Scale(const Vector3& v1, const Vector3& v2)
 {
-#ifdef SIMD_ASM
-	__declspec(align(16)) Vector3 res;
-	_asm
-	{
-		mov esi, v1;
-		mov edi, v2;
-		movaps xmm0, [esi];
-		mulps xmm0, [edi];
-		movaps res, xmm0;
-	}
-	return res;
-#else
 	return Vector3(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z, v1.w * v2.w);
-#endif
 }
 
 //向量长度
@@ -337,23 +248,7 @@ inline Vector3 Vector3::normalized()
 //Lerp插值
 inline Vector3 Vector3::Lerp(const Vector3& v1, const Vector3& v2, float t)
 {
-#ifdef SIMD_ASM
-	__declspec(align(16)) Vector3 res(t, t, t, t);
-	_asm
-	{
-		mov esi, v1;
-		mov edi, v2;
-		movaps xmm0, [edi];
-		movaps xmm1, [esi];
-		subps xmm0, xmm1;
-		mulps xmm0, res.m128;
-		addps xmm0, xmm1;
-		movaps res, xmm0;
-	}
-	return res;
-#else
 	return Vector3(v1.x + (v2.x - v1.x) * t, v1.y + (v2.y - v1.y) * t, v1.z + (v2.z - v1.z) * t, v1.w + (v2.w - v1.w) * t);
-#endif
 }
 
 //点积
@@ -417,7 +312,6 @@ inline Vector3 Vector3::ProjectOnPlane(Vector3& v, Vector3& normal)
 {
 	return v - Vector3::Project(v, normal);
 }
-
 
 std::ostream& operator<<(std::ostream& os, const Vector3& v)
 {
