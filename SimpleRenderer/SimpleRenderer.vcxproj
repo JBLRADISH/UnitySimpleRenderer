@@ -134,6 +134,7 @@
     <None Include="SDL2.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="mathf.h" />
     <ClInclude Include="renderer.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="draw.h" />

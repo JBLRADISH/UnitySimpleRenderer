@@ -2,12 +2,11 @@
 
 #include <math.h>
 #include <xmmintrin.h>
+#include <ostream>
+#include "mathf.h"
 
 #define SIMD_ASM 1
 #define SIMD_SHUFFLE(srch, srcl, desth, destl) (srch << 6) | (srcl << 4) | (desth << 2) | (destl)
-
-#include <string>
-#include <iostream>
 
 class Vector3
 {
@@ -25,14 +24,14 @@ public:
 		__m128 m128;
 	};
 
-	static Vector3 zero;
-	static Vector3 one;
-	static Vector3 forward;
-	static Vector3 back;
-	static Vector3 right;
-	static Vector3 left;
-	static Vector3 up;
-	static Vector3 down;
+	static const Vector3 zero;
+	static const Vector3 one;
+	static const Vector3 forward;
+	static const Vector3 back;
+	static const Vector3 right;
+	static const Vector3 left;
+	static const Vector3 up;
+	static const Vector3 down;
 
 	Vector3() = default;
 
@@ -69,8 +68,8 @@ public:
 	Vector3 operator+(const Vector3& v);
 	Vector3 operator-(const Vector3& v);
 	Vector3 operator*(float f);
+	friend Vector3 operator*(float f, const Vector3& v);
 	Vector3 operator/(float f);
-	static Vector3 operator*(float f, const Vector3& v);
 
 	Vector3& Scale(const Vector3& v);
 	static Vector3 Scale(const Vector3& v1, const Vector3& v2);
@@ -93,20 +92,17 @@ public:
 	static float Angle(Vector3& v1, Vector3& v2);
 	static Vector3 ProjectOnPlane(Vector3& v, Vector3 &normal);
 
-	//friend ostream& operator<< (ostream&, const Vector3&);
+	friend std::ostream& operator<< (std::ostream&, const Vector3&);
 };
 
-//零向量
-Vector3 Vector3::zero = Vector3(0, 0, 0, 0);
-
-//这样的不是常量是不是可以在外部修改？
-Vector3 Vector3::one = Vector3(1, 1, 1);
-Vector3 Vector3::forward = Vector3(0, 0, 1);
-Vector3 Vector3::back = Vector3(0, 0, -1);
-Vector3 Vector3::right = Vector3(1, 0, 0);
-Vector3 Vector3::left = Vector3(-1, 0, 0);
-Vector3 Vector3::up = Vector3(0, 1, 0);
-Vector3 Vector3::down = Vector3(0, -1, 0);
+const Vector3 Vector3::zero = Vector3(0.0f, 0.0f, 0.0f);
+const Vector3 Vector3::one = Vector3(1.0f, 1.0f, 1.0f);
+const Vector3 Vector3::forward = Vector3(0.0f, 0.0f, 1.0f);
+const Vector3 Vector3::back = Vector3(0.0f, 0.0f, -1.0f);
+const Vector3 Vector3::right = Vector3(1.0f, 0.0f, 0.0f);
+const Vector3 Vector3::left = Vector3(-1.0f, 0.0f, 0.0f);
+const Vector3 Vector3::up = Vector3(0.0f, 1.0f, 0.0f);
+const Vector3 Vector3::down = Vector3(0.0f, -1.0f, 0.0f);
 
 //重载下标运算符
 inline float& Vector3::operator[](int idx)
@@ -182,7 +178,7 @@ inline Vector3 Vector3::operator*(float f)
 #endif
 }
 
-inline Vector3 Vector3::operator*(float f, const Vector3& v) 
+inline Vector3 operator*(float f, const Vector3& v)
 {
 	return Vector3(v.x * f, v.y * f, v.z * f, v.w * f);
 }
@@ -395,18 +391,30 @@ inline Vector3 Vector3::Project(Vector3& v1, Vector3& v2)
 	return v2 * Vector3::Dot(v1, v2) / Vector3::Dot(v2, v2);
 }
 
-//反射 为什么有的参数是常量，有的不是啊
-inline Vector3 Vector3::Reflect(Vector3& inDir, Vector3& normal) {
-	return normal * Vector3::Dot(inDir, normal) * -2 + inDir;
+//反射
+inline Vector3 Vector3::Reflect(Vector3& inDir, Vector3& normal) 
+{
+	return -2.0f * normal * Vector3::Dot(inDir, normal) + inDir;
 }
 
 //向量间夹角
-inline float Vector3::Angle(Vector3& v1, Vector3& v2) {
-	//反余弦 不会写
+inline float Vector3::Angle(Vector3& v1, Vector3& v2)
+{
+	float num = sqrtf(v1.SqrMagnitude() * v2.SqrMagnitude());
+	if ((double)num < 1.00000000362749E-15)
+		return 0.0f;
+	return acosf(Clamp(Vector3::Dot(v1, v2) / num, -1.0f, 1.0f)) * 57.29578f;
 }
 
 //在平面上投影
 inline Vector3 Vector3::ProjectOnPlane(Vector3& v, Vector3& normal)
 {
 	return v - Vector3::Project(v, normal);
+}
+
+
+std::ostream& operator<<(std::ostream& os, const Vector3& v)
+{
+	os << "(" << v.x << "," << v.y << "," << v.z << "," << v.w << ")";
+	return os;
 }
