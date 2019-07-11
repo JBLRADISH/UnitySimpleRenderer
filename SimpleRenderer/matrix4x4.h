@@ -73,6 +73,10 @@ public:
 	static Matrix4x4 TRS(const Vector3& translation, const Quaternion& rotate, const Vector3& scale);
 	static Matrix4x4 TRS(const Vector3& translation, const Vector3& rotate, const Vector3& scale);
 
+	static Vector3 ExtractTranslation(Matrix4x4& m);
+	static Quaternion ExtractRotate(Matrix4x4& m);
+	static Vector3 ExtractScale(Matrix4x4& m);
+
 	friend std::ostream& operator<< (std::ostream&, Matrix4x4&);
 };
 
@@ -215,6 +219,26 @@ inline Matrix4x4 Matrix4x4::TRS(const Vector3& translation, const Vector3& rotat
 	res[3] = translation;
 	res[3][3] = 1.0f;
 	return res;
+}
+
+//从矩阵中提取平移
+inline Vector3 Matrix4x4::ExtractTranslation(Matrix4x4& m)
+{
+	Vector3 res = m[3];
+	res[3] = 0.0f;
+	return res;
+}
+
+//TODO 从矩阵中提取旋转
+inline Quaternion Matrix4x4::ExtractRotate(Matrix4x4& m)
+{
+
+}
+
+//从矩阵中提取缩放
+inline Vector3 Matrix4x4::ExtractTranslation(Matrix4x4& m)
+{
+	return Vector3(m[0].Magnitude(), m[1].Magnitude(), m[2].Magnitude());
 }
 
 std::ostream& operator<<(std::ostream& os, Matrix4x4& m)
