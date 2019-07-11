@@ -29,6 +29,7 @@ public:
 			float m33;
 		};
 		float m[16];
+		__m128 m128[4];
 	};
 
 	static const Matrix4x4 zero;
@@ -97,20 +98,40 @@ inline Vector3& Matrix4x4::operator[](int idx)
 inline Vector3 Matrix4x4::operator*(const Vector3& v)
 {
 	Vector3 res;
+#ifdef SIMD_ASM
+	__m128 col1 = _mm_shuffle_ps(v.m128, v.m128, _MM_SHUFFLE(0, 0, 0, 0));
+	__m128 col2 = _mm_shuffle_ps(v.m128, v.m128, _MM_SHUFFLE(1, 1, 1, 1));
+	__m128 col3 = _mm_shuffle_ps(v.m128, v.m128, _MM_SHUFFLE(2, 2, 2, 2));
+	__m128 col4 = _mm_shuffle_ps(v.m128, v.m128, _MM_SHUFFLE(3, 3, 3, 3));
+
+	res.m128 = _mm_add_ps(
+		_mm_add_ps(_mm_mul_ps(m128[0], col1), _mm_mul_ps(m128[1], col2)),
+		_mm_add_ps(_mm_mul_ps(m128[2], col3), _mm_mul_ps(m128[3], col4))
+	);
+#else
 	res.x = (float)((double)m00 * (double)v.x + (double)m01 * (double)v.y + (double)m02 * (double)v.z + (double)m03 * (double)v.w);
 	res.y = (float)((double)m10 * (double)v.x + (double)m11 * (double)v.y + (double)m12 * (double)v.z + (double)m13 * (double)v.w);
 	res.z = (float)((double)m20 * (double)v.x + (double)m21 * (double)v.y + (double)m22 * (double)v.z + (double)m23 * (double)v.w);
-	res.w = v.w;
+	res.w = (float)((double)m30 * (double)v.x + (double)m31 * (double)v.y + (double)m32 * (double)v.z + (double)m33 * (double)v.w);
+#endif
 	return res;
 }
 
 inline Matrix4x4 Matrix4x4::operator*(float f)
 {
 	Matrix4x4 res;
+#ifdef SIMD_ASM
+	__m128 s = _mm_set1_ps(f);
+	res.m128[0] = _mm_mul_ps(m128[0], s);
+	res.m128[1] = _mm_mul_ps(m128[1], s);
+	res.m128[2] = _mm_mul_ps(m128[2], s);
+	res.m128[3] = _mm_mul_ps(m128[3], s);
+#else
 	for (int i = 0; i < 4; i++)
 	{
 		res[i] = v[i] * f;
 	}
+#endif
 	return res;
 }
 
@@ -118,6 +139,79 @@ inline Matrix4x4 Matrix4x4::operator*(float f)
 inline Matrix4x4 Matrix4x4::operator*(Matrix4x4& m)
 {
 	Matrix4x4 res;
+#ifdef SIMD_ASM
+	{
+		__m128 e0 = _mm_shuffle_ps(m.m128[0], m.m128[0], _MM_SHUFFLE(0, 0, 0, 0));
+		__m128 e1 = _mm_shuffle_ps(m.m128[0], m.m128[0], _MM_SHUFFLE(1, 1, 1, 1));
+		__m128 e2 = _mm_shuffle_ps(m.m128[0], m.m128[0], _MM_SHUFFLE(2, 2, 2, 2));
+		__m128 e3 = _mm_shuffle_ps(m.m128[0], m.m128[0], _MM_SHUFFLE(3, 3, 3, 3));
+
+		__m128 v0 = _mm_mul_ps(m128[0], e0);
+		__m128 v1 = _mm_mul_ps(m128[1], e1);
+		__m128 v2 = _mm_mul_ps(m128[2], e2);
+		__m128 v3 = _mm_mul_ps(m128[3], e3);
+
+		__m128 a0 = _mm_add_ps(v0, v1);
+		__m128 a1 = _mm_add_ps(v2, v3);
+		__m128 a2 = _mm_add_ps(a0, a1);
+
+		res.m128[0] = a2;
+	}
+
+	{
+		__m128 e0 = _mm_shuffle_ps(m.m128[1], m.m128[1], _MM_SHUFFLE(0, 0, 0, 0));
+		__m128 e1 = _mm_shuffle_ps(m.m128[1], m.m128[1], _MM_SHUFFLE(1, 1, 1, 1));
+		__m128 e2 = _mm_shuffle_ps(m.m128[1], m.m128[1], _MM_SHUFFLE(2, 2, 2, 2));
+		__m128 e3 = _mm_shuffle_ps(m.m128[1], m.m128[1], _MM_SHUFFLE(3, 3, 3, 3));
+
+		__m128 v0 = _mm_mul_ps(m128[0], e0);
+		__m128 v1 = _mm_mul_ps(m128[1], e1);
+		__m128 v2 = _mm_mul_ps(m128[2], e2);
+		__m128 v3 = _mm_mul_ps(m128[3], e3);
+
+		__m128 a0 = _mm_add_ps(v0, v1);
+		__m128 a1 = _mm_add_ps(v2, v3);
+		__m128 a2 = _mm_add_ps(a0, a1);
+
+		res.m128[1] = a2;
+	}
+
+	{
+		__m128 e0 = _mm_shuffle_ps(m.m128[2], m.m128[2], _MM_SHUFFLE(0, 0, 0, 0));
+		__m128 e1 = _mm_shuffle_ps(m.m128[2], m.m128[2], _MM_SHUFFLE(1, 1, 1, 1));
+		__m128 e2 = _mm_shuffle_ps(m.m128[2], m.m128[2], _MM_SHUFFLE(2, 2, 2, 2));
+		__m128 e3 = _mm_shuffle_ps(m.m128[2], m.m128[2], _MM_SHUFFLE(3, 3, 3, 3));
+
+		__m128 v0 = _mm_mul_ps(m128[0], e0);
+		__m128 v1 = _mm_mul_ps(m128[1], e1);
+		__m128 v2 = _mm_mul_ps(m128[2], e2);
+		__m128 v3 = _mm_mul_ps(m128[3], e3);
+
+		__m128 a0 = _mm_add_ps(v0, v1);
+		__m128 a1 = _mm_add_ps(v2, v3);
+		__m128 a2 = _mm_add_ps(a0, a1);
+
+		res.m128[2] = a2;
+	}
+
+	{
+		__m128 e0 = _mm_shuffle_ps(m.m128[3], m.m128[3], _MM_SHUFFLE(0, 0, 0, 0));
+		__m128 e1 = _mm_shuffle_ps(m.m128[3], m.m128[3], _MM_SHUFFLE(1, 1, 1, 1));
+		__m128 e2 = _mm_shuffle_ps(m.m128[3], m.m128[3], _MM_SHUFFLE(2, 2, 2, 2));
+		__m128 e3 = _mm_shuffle_ps(m.m128[3], m.m128[3], _MM_SHUFFLE(3, 3, 3, 3));
+
+		__m128 v0 = _mm_mul_ps(m128[0], e0);
+		__m128 v1 = _mm_mul_ps(m128[1], e1);
+		__m128 v2 = _mm_mul_ps(m128[2], e2);
+		__m128 v3 = _mm_mul_ps(m128[3], e3);
+
+		__m128 a0 = _mm_add_ps(v0, v1);
+		__m128 a1 = _mm_add_ps(v2, v3);
+		__m128 a2 = _mm_add_ps(a0, a1);
+
+		res.m128[3] = a2;
+	}
+#else
 	res.m00 = (float)((double)m00 * (double)m.m00 + (double)m01 * (double)m.m10 + (double)m02 * (double)m.m20 + (double)m03 * (double)m.m30);
 	res.m01 = (float)((double)m00 * (double)m.m01 + (double)m01 * (double)m.m11 + (double)m02 * (double)m.m21 + (double)m03 * (double)m.m31);
 	res.m02 = (float)((double)m00 * (double)m.m02 + (double)m01 * (double)m.m12 + (double)m02 * (double)m.m22 + (double)m03 * (double)m.m32);
@@ -134,6 +228,7 @@ inline Matrix4x4 Matrix4x4::operator*(Matrix4x4& m)
 	res.m31 = (float)((double)m30 * (double)m.m01 + (double)m31 * (double)m.m11 + (double)m32 * (double)m.m21 + (double)m33 * (double)m.m31);
 	res.m32 = (float)((double)m30 * (double)m.m02 + (double)m31 * (double)m.m12 + (double)m32 * (double)m.m22 + (double)m33 * (double)m.m32);
 	res.m33 = (float)((double)m30 * (double)m.m03 + (double)m31 * (double)m.m13 + (double)m32 * (double)m.m23 + (double)m33 * (double)m.m33);
+#endif
 	return res;
 }
 
@@ -152,6 +247,18 @@ inline Matrix4x4 Matrix4x4::Transpose()
 inline Matrix4x4 Matrix4x4::Transpose(Matrix4x4& m)
 {
 	Matrix4x4 res;
+#ifdef SIMD_ASM
+	__m128 tmp0 = _mm_shuffle_ps(m.m128[0], m.m128[1], 0x44);
+	__m128 tmp2 = _mm_shuffle_ps(m.m128[0], m.m128[1], 0xEE);
+	__m128 tmp1 = _mm_shuffle_ps(m.m128[2], m.m128[3], 0x44);
+	__m128 tmp3 = _mm_shuffle_ps(m.m128[2], m.m128[3], 0xEE);
+
+	res.m128[0] = _mm_shuffle_ps(tmp0, tmp1, 0x88);
+	res.m128[1] = _mm_shuffle_ps(tmp0, tmp1, 0xDD);
+	res.m128[2] = _mm_shuffle_ps(tmp2, tmp3, 0x88);
+	res.m128[3] = _mm_shuffle_ps(tmp2, tmp3, 0xDD);
+#else
+
 	for (int i = 0; i < 4; i++)
 	{
 		for (int j = 0; j < 4; j++)
@@ -159,6 +266,7 @@ inline Matrix4x4 Matrix4x4::Transpose(Matrix4x4& m)
 			res[i][j] = m[j][i];
 		}
 	}
+#endif
 	return res;
 }
 
