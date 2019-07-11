@@ -197,25 +197,25 @@ inline Vector3 Quaternion::Euler()
 }
 
 //四元数的模
-float Quaternion::Norm()
+inline float Quaternion::Norm()
 {
 	return sqrtf(x * x + y * y + z * z + w * w);
 }
 
 //四元数共轭
-Quaternion Quaternion::Conjugate()
+inline Quaternion Quaternion::Conjugate()
 {
 	return Quaternion(-x, -y, -z, w);
 }
 
 //单位四元数的逆等于共轭
-Quaternion Quaternion::UnitInverse()
+inline Quaternion Quaternion::UnitInverse()
 {
 	return Conjugate();
 }
 
 //四元数的逆
-Quaternion Quaternion::Inverse()
+inline Quaternion Quaternion::Inverse()
 {
 	float invNorm = 1 / Norm();
 	return Quaternion(-x * invNorm, -y * invNorm, -z * invNorm, w * invNorm);
