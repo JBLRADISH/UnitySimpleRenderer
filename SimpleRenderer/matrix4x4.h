@@ -59,6 +59,7 @@ public:
 
 	Vector3& operator[](int idx);
 	Vector3 operator*(const Vector3& v);
+	Matrix4x4 operator*(float f);
 	Matrix4x4 operator*(Matrix4x4& m);
 
 	Vector3 GetRow(int idx);
@@ -76,6 +77,9 @@ public:
 	static Vector3 ExtractTranslation(Matrix4x4& m);
 	static Quaternion ExtractRotate(Matrix4x4& m);
 	static Vector3 ExtractScale(Matrix4x4& m);
+
+	float Determinant();
+	bool Inverse(Matrix4x4& m);
 
 	friend std::ostream& operator<< (std::ostream&, Matrix4x4&);
 };
@@ -97,6 +101,16 @@ inline Vector3 Matrix4x4::operator*(const Vector3& v)
 	res.y = (float)((double)m10 * (double)v.x + (double)m11 * (double)v.y + (double)m12 * (double)v.z + (double)m13 * (double)v.w);
 	res.z = (float)((double)m20 * (double)v.x + (double)m21 * (double)v.y + (double)m22 * (double)v.z + (double)m23 * (double)v.w);
 	res.w = v.w;
+	return res;
+}
+
+inline Matrix4x4 Matrix4x4::operator*(float f)
+{
+	Matrix4x4 res;
+	for (int i = 0; i < 4; i++)
+	{
+		res[i] = v[i] * f;
+	}
 	return res;
 }
 
@@ -236,9 +250,74 @@ inline Quaternion Matrix4x4::ExtractRotate(Matrix4x4& m)
 }
 
 //从矩阵中提取缩放
-inline Vector3 Matrix4x4::ExtractTranslation(Matrix4x4& m)
+inline Vector3 Matrix4x4::ExtractScale(Matrix4x4& m)
 {
-	return Vector3(m[0].Magnitude(), m[1].Magnitude(), m[2].Magnitude());
+	return Vector3(m.Determinant() < 0 ? -m[0].Magnitude() : m[0].Magnitude(), m[1].Magnitude(), m[2].Magnitude());
+}
+
+//矩阵行列式 (代数余子式法)
+inline float Matrix4x4::Determinant()
+{
+	float a0 = m[0] * m[5] - m[1] * m[4];
+	float a1 = m[0] * m[6] - m[2] * m[4];
+	float a2 = m[0] * m[7] - m[3] * m[4];
+	float a3 = m[1] * m[6] - m[2] * m[5];
+	float a4 = m[1] * m[7] - m[3] * m[5];
+	float a5 = m[2] * m[7] - m[3] * m[6];
+	float b0 = m[8] * m[13] - m[9] * m[12];
+	float b1 = m[8] * m[14] - m[10] * m[12];
+	float b2 = m[8] * m[15] - m[11] * m[12];
+	float b3 = m[9] * m[14] - m[10] * m[13];
+	float b4 = m[9] * m[15] - m[11] * m[13];
+	float b5 = m[10] * m[15] - m[11] * m[14];
+
+	return (a0 * b5 - a1 * b4 + a2 * b3 + a3 * b2 - a4 * b1 + a5 * b0);
+}
+
+//矩阵求逆 (伴随矩阵法)
+inline bool Matrix4x4::Inverse(Matrix4x4& inverse)
+{
+	float a0 = m[0] * m[5] - m[1] * m[4];
+	float a1 = m[0] * m[6] - m[2] * m[4];
+	float a2 = m[0] * m[7] - m[3] * m[4];
+	float a3 = m[1] * m[6] - m[2] * m[5];
+	float a4 = m[1] * m[7] - m[3] * m[5];
+	float a5 = m[2] * m[7] - m[3] * m[6];
+	float b0 = m[8] * m[13] - m[9] * m[12];
+	float b1 = m[8] * m[14] - m[10] * m[12];
+	float b2 = m[8] * m[15] - m[11] * m[12];
+	float b3 = m[9] * m[14] - m[10] * m[13];
+	float b4 = m[9] * m[15] - m[11] * m[13];
+	float b5 = m[10] * m[15] - m[11] * m[14];
+
+	float det = a0 * b5 - a1 * b4 + a2 * b3 + a3 * b2 - a4 * b1 + a5 * b0;
+
+	if (std::abs(det) <= Tolerance)
+		return false;
+
+	inverse.m[0] = m[5] * b5 - m[6] * b4 + m[7] * b3;
+	inverse.m[1] = -m[1] * b5 + m[2] * b4 - m[3] * b3;
+	inverse.m[2] = m[13] * a5 - m[14] * a4 + m[15] * a3;
+	inverse.m[3] = -m[9] * a5 + m[10] * a4 - m[11] * a3;
+
+	inverse.m[4] = -m[4] * b5 + m[6] * b2 - m[7] * b1;
+	inverse.m[5] = m[0] * b5 - m[2] * b2 + m[3] * b1;
+	inverse.m[6] = -m[12] * a5 + m[14] * a2 - m[15] * a1;
+	inverse.m[7] = m[8] * a5 - m[10] * a2 + m[11] * a1;
+
+	inverse.m[8] = m[4] * b4 - m[5] * b2 + m[7] * b0;
+	inverse.m[9] = -m[0] * b4 + m[1] * b2 - m[3] * b0;
+	inverse.m[10] = m[12] * a4 - m[13] * a2 + m[15] * a0;
+	inverse.m[11] = -m[8] * a4 + m[9] * a2 - m[11] * a0;
+
+	inverse.m[12] = -m[4] * b3 + m[5] * b1 - m[6] * b0;
+	inverse.m[13] = m[0] * b3 - m[1] * b1 + m[2] * b0;
+	inverse.m[14] = -m[12] * a3 + m[13] * a1 - m[14] * a0;
+	inverse.m[15] = m[8] * a3 - m[9] * a1 + m[10] * a0;
+
+	inverse = inverse * (1.0f / det);
+
+	return true;
 }
 
 std::ostream& operator<<(std::ostream& os, Matrix4x4& m)
