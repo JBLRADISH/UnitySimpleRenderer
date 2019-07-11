@@ -6,6 +6,8 @@ const float Rad2Deg = 57.29578f;
 
 const float Tolerance = 2e-37f;
 
+const float Epsilon = 1.401298E-45f;
+
 float Clamp(float value, float min, float max)
 {
 	if ((double)value < (double)min)
