@@ -49,6 +49,7 @@ class Quaternion
 	static float Dot(const Quaternion& q1, const Quaternion& q2);
 	static float Angle(const Quaternion& q1, const Quaternion& q2);
 	static Quaternion Slerp(Quaternion& q1, Quaternion& q2, float t);
+	static Quaternion LookRotation(const Vector3& forward, const Vector3& up);
 
 	void Normalize();
 	static Quaternion Normalize(Quaternion& q);
@@ -169,6 +170,62 @@ inline Quaternion Quaternion::Slerp(Quaternion& q1, Quaternion& q2, float t)
 	}
 
 	return q * t0 + q2 * t1;
+}
+
+//创建给定一个特定前向量的四元数 利用矩阵转换到四元数
+inline Quaternion Quaternion::LookRotation(const Vector3& forward, const Vector3& up)
+{
+	Vector3 vector = Vector3::Normalize(forward);
+	Vector3 vector2 = Vector3::Normalize(Vector3::Cross(up, vector));
+	Vector3 vector3 = Vector3::Cross(vector, vector2);
+	float m00 = vector2.x;
+	float m01 = vector2.y;
+	float m02 = vector2.z;
+	float m10 = vector3.x;
+	float m11 = vector3.y;
+	float m12 = vector3.z;
+	float m20 = vector.x;
+	float m21 = vector.y;
+	float m22 = vector.z;
+	float num8 = (m00 + m11) + m22;
+	Quaternion res;
+	if (num8 > 0.0f)
+	{
+		float num = sqrtf(num8 + 1.0f);
+		res.w = num * 0.5f;
+		num = 0.5f / num;
+		res.x = (m12 - m21) * num;
+		res.y = (m20 - m02) * num;
+		res.z = (m01 - m10) * num;
+		return res;
+	}
+	if ((m00 >= m11) && (m00 >= m22))
+	{
+		float num7 = sqrtf(((1.0f + m00) - m11) - m22);
+		float num4 = 0.5f / num7;
+		res.x = 0.5f * num7;
+		res.y = (m01 + m10) * num4;
+		res.z = (m02 + m20) * num4;
+		res.w = (m12 - m21) * num4;
+		return res;
+	}
+	if (m11 > m22)
+	{
+		float num6 = sqrtf(((1.0f + m11) - m00) - m22);
+		float num3 = 0.5f / num6;
+		res.x = (m10 + m01) * num3;
+		res.y = 0.5f * num6;
+		res.z = (m21 + m12) * num3;
+		res.w = (m20 - m02) * num3;
+		return res;
+	}
+	float num5 = sqrtf(((1.0f + m22) - m00) - m11);
+	float num2 = 0.5f / num5;
+	res.x = (m20 + m02) * num2;
+	res.y = (m21 + m12) * num2;
+	res.z = 0.5f * num5;
+	res.w = (m01 - m10) * num2;
+	return res;
 }
 
 //四元数正则化
