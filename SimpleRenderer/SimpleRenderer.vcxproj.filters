@@ -50,5 +50,17 @@
     <ClInclude Include="quaternion.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="gameobject.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="transform.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="obj.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
