@@ -79,6 +79,8 @@ public:
 	static Quaternion ExtractRotate(Matrix4x4& m);
 	static Vector3 ExtractScale(Matrix4x4& m);
 
+	Vector3 Euler();
+
 	float Determinant();
 	bool Inverse(Matrix4x4& m);
 
@@ -282,7 +284,36 @@ inline Matrix4x4 Matrix4x4::Translate(const Vector3& v)
 //TODO 根据四元数创建旋转矩阵
 inline Matrix4x4 Matrix4x4::Rotate(const Quaternion& q)
 {
-
+	float num1 = q.x * 2.0f;
+	float num2 = q.y * 2.0f;
+	float num3 = q.z * 2.0f;
+	float num4 = q.x * num1;
+	float num5 = q.y * num2;
+	float num6 = q.z * num3;
+	float num7 = q.x * num2;
+	float num8 = q.x * num3;
+	float num9 = q.y * num3;
+	float num10 = q.w * num1;
+	float num11 = q.w * num2;
+	float num12 = q.w * num3;
+	Matrix4x4 res;
+	res.m00 = (float)(1.0 - ((double)num5 + (double)num6));
+	res.m10 = num7 + num12;
+	res.m20 = num8 - num11;
+	res.m30 = 0.0f;
+	res.m01 = num7 - num12;
+	res.m11 = (float)(1.0 - ((double)num4 + (double)num6));
+	res.m21 = num9 + num10;
+	res.m31 = 0.0f;
+	res.m02 = num8 + num11;
+	res.m12 = num9 - num10;
+	res.m22 = (float)(1.0 - ((double)num4 + (double)num5));
+	res.m32 = 0.0f;
+	res.m03 = 0.0f;
+	res.m13 = 0.0f;
+	res.m23 = 0.0f;
+	res.m33 = 1.0f;
+	return res;
 }
 
 //根据欧拉角创建旋转矩阵 local2world yxz
@@ -319,7 +350,36 @@ inline Matrix4x4 Matrix4x4::Scale(const Vector3& v)
 //TODO TRS矩阵
 inline Matrix4x4 Matrix4x4::TRS(const Vector3& translation, const Quaternion& rotate, const Vector3& scale)
 {
-
+	float num1 = rotate.x * 2.0f;
+	float num2 = rotate.y * 2.0f;
+	float num3 = rotate.z * 2.0f;
+	float num4 = rotate.x * num1;
+	float num5 = rotate.y * num2;
+	float num6 = rotate.z * num3;
+	float num7 = rotate.x * num2;
+	float num8 = rotate.x * num3;
+	float num9 = rotate.y * num3;
+	float num10 = rotate.w * num1;
+	float num11 = rotate.w * num2;
+	float num12 = rotate.w * num3;
+	Matrix4x4 res;
+	res.m00 = scale.x * (float)(1.0 - ((double)num5 + (double)num6));
+	res.m10 = scale.x * (num7 + num12);
+	res.m20 = scale.x * (num8 - num11);
+	res.m30 = 0.0f;
+	res.m01 = scale.y * (num7 - num12);
+	res.m11 = scale.y * (float)(1.0 - ((double)num4 + (double)num6));
+	res.m21 = scale.y * (num9 + num10);
+	res.m31 = 0.0f;
+	res.m02 = scale.z * (num8 + num11);
+	res.m12 = scale.z * (num9 - num10);
+	res.m22 = scale.z * (float)(1.0 - ((double)num4 + (double)num5));
+	res.m32 = 0.0f;
+	res.m03 = translation.x;
+	res.m13 = translation.y;
+	res.m23 = translation.z;
+	res.m33 = 1.0f;
+	return res;
 }
 
 inline Matrix4x4 Matrix4x4::TRS(const Vector3& translation, const Vector3& rotate, const Vector3& scale)
@@ -354,13 +414,23 @@ inline Vector3 Matrix4x4::ExtractTranslation(Matrix4x4& m)
 //TODO 从矩阵中提取旋转
 inline Quaternion Matrix4x4::ExtractRotate(Matrix4x4& m)
 {
-
+	return Quaternion::LookRotation(m[2], m[1]);
 }
 
 //从矩阵中提取缩放
 inline Vector3 Matrix4x4::ExtractScale(Matrix4x4& m)
 {
 	return Vector3(m.Determinant() < 0 ? -m[0].Magnitude() : m[0].Magnitude(), m[1].Magnitude(), m[2].Magnitude());
+}
+
+//矩阵转换为欧拉角
+inline Vector3 Matrix4x4::Euler()
+{
+	Vector3 res;
+	res.x = atan2f(-v[2][1], sqrtf(v[0][1] * v[0][1] + v[1][1] * v[1][1])) * Rad2Deg;
+	res.y = atan2f(v[2][0], v[2][2]) * Rad2Deg;
+	res.z = atan2f(v[0][1], v[1][1]) * Rad2Deg;
+	return res;
 }
 
 //矩阵行列式 (代数余子式法)

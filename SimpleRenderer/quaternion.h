@@ -2,6 +2,7 @@
 
 class Quaternion
 {
+public:
 	union
 	{
 		float q[4];
