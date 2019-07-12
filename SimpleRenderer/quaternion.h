@@ -65,6 +65,8 @@ public:
 	Quaternion Conjugate();
 	Quaternion UnitInverse();
 	Quaternion Inverse();
+
+	friend std::ostream& operator<< (std::ostream&, const Quaternion&);
 };
 
 const Quaternion Quaternion::identity = Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
@@ -327,4 +329,10 @@ inline Quaternion Quaternion::Inverse()
 {
 	float invNorm = 1.0f / Norm();
 	return *this * invNorm;
+}
+
+std::ostream& operator<<(std::ostream& os, const Quaternion& q)
+{
+	os << "(" << q.x << "," << q.y << "," << q.z << "," << q.w << ")";
+	return os;
 }
