@@ -41,13 +41,17 @@ class Quaternion
 	}
 
 	float& operator[](int idx);
+	Quaternion operator+(const Quaternion& q);
+	Quaternion operator*(float f);
 	Quaternion operator*(const Quaternion& q);
 	Vector3 operator*(const Vector3& q);
 
 	static float Dot(const Quaternion& q1, const Quaternion& q2);
+	static float Angle(const Quaternion& q1, const Quaternion& q2);
+	static Quaternion Slerp(Quaternion& q1, Quaternion& q2, float t);
 
 	void Normalize();
-	static Quaternion Normalize(const Quaternion& q);
+	static Quaternion Normalize(Quaternion& q);
 	Quaternion normalized();
 
 	static Quaternion AngleAxis(float angle, Vector3& axis);
@@ -69,7 +73,18 @@ inline float& Quaternion::operator[](int idx)
 	return q[idx];
 }
 
+//重载加法
+Quaternion Quaternion::operator+(const Quaternion& q)
+{
+	return Quaternion(x + q.x, y + q.y, z + q.z, w + q.w);
+}
+
 //重载乘法
+Quaternion Quaternion::operator*(float f)
+{
+	return Quaternion(x * f, y * f, z * f, w * f);
+}
+
 Quaternion Quaternion::operator*(const Quaternion& q)
 {
 	return Quaternion((float)((double)w * (double)q.x + (double)x * (double)q.w + (double)y * (double)q.z - (double)z * (double)q.y), (float)((double)w * (double)q.y + (double)y * (double)q.w + (double)z * (double)q.x - (double)x * (double)q.z), (float)((double)w * (double)q.z + (double)z * (double)q.w + (double)x * (double)q.y - (double)y * (double)q.x), (float)((double)w * (double)q.w - (double)x * (double)q.x - (double)y * (double)q.y - (double)z * (double)q.z));
@@ -121,18 +136,53 @@ inline float Quaternion::Dot(const Quaternion& q1, const Quaternion& q2)
 #endif
 }
 
+//角度
+inline float Quaternion::Angle(const Quaternion& q1, const Quaternion& q2)
+{
+	float num = Quaternion::Dot(q1, q2);
+	return (double)num <= 0.999998986721039 ? (float)((double)acosf(fminf(fabsf(num), 1.0f)) * 2.0 * 57.2957801818848) : 0.0f;
+}
+
+//单位四元数球面插值
+inline Quaternion Quaternion::Slerp(Quaternion& q1, Quaternion& q2, float t)
+{
+	float costheta = Quaternion::Dot(q1, q2);
+	Quaternion q = q1;
+	if (costheta < 0.0f)
+	{
+		q = q * (-1.0f);
+		costheta = -costheta;
+	}
+	float t0, t1;
+	if (costheta > 0.9999f)
+	{
+		t0 = 1.0f - t;
+		t1 = t;
+	}
+	else 
+	{
+		float sintheta = sqrtf(1.0f - costheta * costheta);
+		float theta = atan2(sintheta, costheta);
+		float invsintheta = 1.0f / sintheta;
+		t0 = sinf((1.0f - t) * theta) * invsintheta;
+		t1 = sinf(t * theta) * invsintheta;
+	}
+
+	return q * t0 + q2 * t1;
+}
+
 //四元数正则化
 inline void Quaternion::Normalize()
 {
 	*this = Quaternion::Normalize(*this);
 }
 
-inline Quaternion Quaternion::Normalize(const Quaternion& q)
+inline Quaternion Quaternion::Normalize(Quaternion& q)
 {
 	float num = sqrtf(Quaternion::Dot(q, q));
 	if ((double)num < (double)Epsilon)
 		return Quaternion::identity;
-	return Quaternion(q.x / num, q.y / num, q.z / num, q.w / num);
+	return q * (1.0f / num);
 }
 
 inline Quaternion Quaternion::normalized()
@@ -153,7 +203,7 @@ inline Quaternion Quaternion::AngleAxis(float angle, Vector3& axis)
 inline void Quaternion::ToAngleAxis(float& angle, Vector3& axis)
 {
 	angle = acosf(w);
-	float invsinangle = 1 / sinf(angle);
+	float invsinangle = 1.0f / sinf(angle);
 	axis.x = x * invsinangle;
 	axis.y = y * invsinangle;
 	axis.z = z * invsinangle;
@@ -189,10 +239,10 @@ inline Vector3 Quaternion::Euler()
 {
 	Vector3 res;
 	float xsqr = x * x;
-	res.x = asinf(2 * (w * x - y * z)) * Rad2Deg;
+	res.x = asinf(2.0f * (w * x - y * z)) * Rad2Deg;
 	//atan2可以返回-π到π atan只能返回-π/2到π/2
-	res.y = atan2f(2 * (w * y + x * z), 1 - 2 * (xsqr + y * y)) * Rad2Deg;
-	res.z = atan2f(2 * (w * z + x * y), 1 - 2 * (xsqr + z * z)) * Rad2Deg;
+	res.y = atan2f(2.0f * (w * y + x * z), 1.0f - 2.0f * (xsqr + y * y)) * Rad2Deg;
+	res.z = atan2f(2.0f * (w * z + x * y), 1.0f - 2.0f * (xsqr + z * z)) * Rad2Deg;
 	return res;
 }
 
@@ -217,6 +267,6 @@ inline Quaternion Quaternion::UnitInverse()
 //四元数的逆
 inline Quaternion Quaternion::Inverse()
 {
-	float invNorm = 1 / Norm();
-	return Quaternion(-x * invNorm, -y * invNorm, -z * invNorm, w * invNorm);
+	float invNorm = 1.0f / Norm();
+	return *this * invNorm;
 }
