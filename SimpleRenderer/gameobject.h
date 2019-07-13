@@ -8,5 +8,4 @@ class GameObject
 public:
 	Transform transform;
 	Mesh mesh;
-
 };

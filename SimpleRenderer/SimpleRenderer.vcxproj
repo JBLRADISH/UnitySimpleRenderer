@@ -127,19 +127,28 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="camera.cpp" />
     <ClCompile Include="draw.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="mathf.cpp" />
+    <ClCompile Include="matrix4x4.cpp" />
+    <ClCompile Include="quaternion.cpp" />
+    <ClCompile Include="transform.cpp" />
+    <ClCompile Include="vector3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SDL2.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="camera.h" />
     <ClInclude Include="gameobject.h" />
     <ClInclude Include="mathf.h" />
     <ClInclude Include="matrix4x4.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="obj.h" />
+    <ClInclude Include="plane.h" />
     <ClInclude Include="quaternion.h" />
+    <ClInclude Include="rect.h" />
     <ClInclude Include="renderer.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="draw.h" />
