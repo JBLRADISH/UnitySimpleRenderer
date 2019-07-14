@@ -13,11 +13,14 @@ public:
 	float near;
 	float far;
 
-	Camera(const Transform& transform, float fov, float near, float far, const Rect& viewport);
+	Camera() = default;
+
+	Camera(float fov, float near, float far, const Rect& viewport);
 
 	Matrix4x4 cameraToWorldMatrix();
 	Matrix4x4 worldToCameraMatrix();
 	Matrix4x4 projectionMatrix();
+	Vector3 screenPoint(const Vector3& v);
 
 private:
 	float aspect;

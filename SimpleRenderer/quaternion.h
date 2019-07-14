@@ -60,7 +60,7 @@ public:
 
 	static Quaternion AngleAxis(float angle, Vector3& axis);
 	void ToAngleAxis(float& angle, Vector3& axis);
-	static Quaternion Euler(Vector3& euler);
+	static Quaternion Euler(const Vector3& euler);
 	Vector3 Euler();
 
 	float Norm();

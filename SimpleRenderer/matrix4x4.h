@@ -61,7 +61,7 @@ public:
 	Vector3& operator[](int idx);
 	Vector3 operator*(const Vector3& v);
 	Matrix4x4 operator*(float f);
-	Matrix4x4 operator*(Matrix4x4& m);
+	Matrix4x4 operator*(const Matrix4x4& m);
 
 	Vector3 GetRow(int idx);
 

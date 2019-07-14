@@ -9,17 +9,18 @@ using namespace std;
 class Obj
 {
 public:
-	static void Load(const string& filename, Mesh& mesh);
+	static Mesh Load(const string& filename);
 };
 
-void Obj::Load(const string& filename, Mesh& mesh)
+Mesh Obj::Load(const string& filename)
 {
+	Mesh mesh;
 	ifstream in(filename.c_str());
 
 	if (!in.good())
 	{
 		cout << "ERROR: loading obj:(" << filename << ") file is not good" << "\n";
-		return;
+		return mesh;
 	}
 
 	char buffer[256];
@@ -36,29 +37,30 @@ void Obj::Load(const string& filename, Mesh& mesh)
 		{
 			if (sscanf(buffer, "v %f %f %f", &v1, &v2, &v3) == 3)
 			{
-				mesh.vertices.push_back(Vector3(v1, v2, v3));
+				mesh.vertices.push_back(Vector3(v1, v2, v3, 1.0f));
 			}
 			else
 			{
 				cout << "line " << line << " : vertex not in wanted format in OBJLoader" << "\n";
-				return;
+				return mesh;
 			}
 		}
 		//¶ÁÃæ
 		else if (buffer[0] == 'f' && buffer[1] == ' ')
 		{
-			if (sscanf(buffer, "f %d/%d/%d %d/%d/%d %d/%d/%d", &vidx1, &uvidx1, &nidx1, &vidx2, &uvidx2, &nidx2, &vidx3, &uvidx3, &nidx3) == 9)
+			if (sscanf(buffer, "f %d %d %d", &vidx1, &vidx2, &vidx3) == 3)
 			{
-				mesh.triangles.push_back(vidx1);
-				mesh.triangles.push_back(vidx2);
-				mesh.triangles.push_back(vidx3);
+				mesh.triangles.push_back(vidx1 - 1);
+				mesh.triangles.push_back(vidx2 - 1);
+				mesh.triangles.push_back(vidx3 - 1);
 			}
 			else
 			{
 				cout << "line " << line << " : face not in wanted format in OBJLoader" << "\n";
-				return;
+				return mesh;
 			}
 		}
 		line++;
 	}
+	return mesh;
 }

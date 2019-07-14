@@ -51,7 +51,7 @@ Matrix4x4 Matrix4x4::operator*(float f)
 }
 
 //ÖØÔØ¾ØÕó¾ØÕó³Ë·¨
-Matrix4x4 Matrix4x4::operator*(Matrix4x4& m)
+Matrix4x4 Matrix4x4::operator*(const Matrix4x4& m)
 {
 	Matrix4x4 res;
 #ifdef SIMD_ASM

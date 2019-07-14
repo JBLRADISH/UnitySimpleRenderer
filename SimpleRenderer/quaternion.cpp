@@ -202,7 +202,7 @@ void Quaternion::ToAngleAxis(float& angle, Vector3& axis)
 }
 
 //根据欧拉角创建一个四元数 yxz
-Quaternion Quaternion::Euler(Vector3& euler)
+Quaternion Quaternion::Euler(const Vector3& euler)
 {
 	float halfx = 0.5f * euler.x * Deg2Rad;
 	float halfy = 0.5f * euler.y * Deg2Rad;
