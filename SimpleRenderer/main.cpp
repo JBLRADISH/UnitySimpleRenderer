@@ -15,7 +15,8 @@ SDL_Event e;
 GameObject* go;
 Camera* cam;
 vector<Vector3> vertexBuffer;
-Matrix4x4 mvp;
+Matrix4x4 m;
+Matrix4x4 vp;
 
 int main(int argc, char* args[])
 {
@@ -26,13 +27,15 @@ int main(int argc, char* args[])
 
 	go = &GameObject();
 	go->mesh = Obj::Load("pig.obj");
-	go->transform.rotation = Quaternion::Euler(Vector3(0.0f, 0.0f, 180.0f));
+	go->transform.position = Vector3(0.0f, 1.5f, 0.0f);
+	go->transform.scale = Vector3(2.0f, 2.0f, 2.0f);
 	vertexBuffer.resize(go->mesh.vertexCount());
 
 	cam = &Camera(60.0f, 0.3f, 1000.0f, Rect(0, 0, 800, 600));
 	cam->transform.position = Vector3(0.0f, 0.0f, -10.0f);
 
-	mvp = cam->projectionMatrix() * cam->worldToCameraMatrix() * go->transform.localToWorldMatrix();
+	m = go->transform.localToWorldMatrix();
+	vp = cam->projectionMatrix() * cam->worldToCameraMatrix();
 
 	while (!quit)
 	{
@@ -75,20 +78,37 @@ void Input()
 
 void Render()
 {
-	DrawClearColor(render.screenSurface, &Color(255, 255, 255));
+	DrawClearColor(render.screenSurface, Color(255, 255, 255));
 	for (int i = 0; i < go->mesh.vertexCount(); i++)
 	{
-		vertexBuffer[i] = mvp * go->mesh.vertices[i];
+		vertexBuffer[i] = m * go->mesh.vertices[i];
+	}
+	for (int i = 0; i < go->mesh.faces.size(); i++)
+	{
+		int vidx1 = go->mesh.faces[i].vidx1;
+		int vidx2 = go->mesh.faces[i].vidx2;
+		int vidx3 = go->mesh.faces[i].vidx3;
+		if (!cam->CullFace(vertexBuffer[vidx1], vertexBuffer[vidx2], vertexBuffer[vidx3]))
+		{
+			go->mesh.faces[i].state = 0;
+		}
+	}
+	for (int i = 0; i < go->mesh.vertexCount(); i++)
+	{
+		vertexBuffer[i] = vp * go->mesh.vertices[i];
 		vertexBuffer[i] = cam->screenPoint(vertexBuffer[i]);
 	}
-	for (int i = 0; i < go->mesh.triangles.size(); i += 3)
+	for (int i = 0; i < go->mesh.faces.size(); i++)
 	{
-		int vidx1 = go->mesh.triangles[i];
-		int vidx2 = go->mesh.triangles[i + 1];
-		int vidx3 = go->mesh.triangles[i + 2];
-		DrawLine(render.screenSurface, vertexBuffer[vidx1].x, vertexBuffer[vidx1].y, vertexBuffer[vidx2].x, vertexBuffer[vidx2].y, &Color(55, 66, 81));
-		DrawLine(render.screenSurface, vertexBuffer[vidx1].x, vertexBuffer[vidx1].y, vertexBuffer[vidx3].x, vertexBuffer[vidx3].y, &Color(55, 66, 81));
-		DrawLine(render.screenSurface, vertexBuffer[vidx2].x, vertexBuffer[vidx2].y, vertexBuffer[vidx3].x, vertexBuffer[vidx3].y, &Color(55, 66, 81));
+		if (go->mesh.faces[i].state == 1)
+		{
+			int vidx1 = go->mesh.faces[i].vidx1;
+			int vidx2 = go->mesh.faces[i].vidx2;
+			int vidx3 = go->mesh.faces[i].vidx3;
+			DrawClipLine(render.screenSurface, cam->viewport, vertexBuffer[vidx1].x, vertexBuffer[vidx1].y, vertexBuffer[vidx2].x, vertexBuffer[vidx2].y, Color(55, 66, 81));
+			DrawClipLine(render.screenSurface, cam->viewport, vertexBuffer[vidx1].x, vertexBuffer[vidx1].y, vertexBuffer[vidx3].x, vertexBuffer[vidx3].y, Color(55, 66, 81));
+			DrawClipLine(render.screenSurface, cam->viewport, vertexBuffer[vidx2].x, vertexBuffer[vidx2].y, vertexBuffer[vidx3].x, vertexBuffer[vidx3].y, Color(55, 66, 81));
+		}
 	}
 	SDL_UpdateWindowSurface(render.window);
 }

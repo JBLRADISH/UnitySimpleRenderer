@@ -140,7 +140,9 @@
     <None Include="SDL2.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="alignallocator.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="face.h" />
     <ClInclude Include="gameobject.h" />
     <ClInclude Include="mathf.h" />
     <ClInclude Include="matrix4x4.h" />

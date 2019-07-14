@@ -50,9 +50,7 @@ Mesh Obj::Load(const string& filename)
 		{
 			if (sscanf(buffer, "f %d %d %d", &vidx1, &vidx2, &vidx3) == 3)
 			{
-				mesh.triangles.push_back(vidx1 - 1);
-				mesh.triangles.push_back(vidx2 - 1);
-				mesh.triangles.push_back(vidx3 - 1);
+				mesh.faces.push_back(Face(vidx1 - 1, vidx2 - 1, vidx3 - 1));
 			}
 			else
 			{

@@ -3,6 +3,7 @@
 #include "rect.h"
 #include "plane.h"
 #include "transform.h"
+#include "mesh.h"
 
 class Camera
 {
@@ -21,6 +22,7 @@ public:
 	Matrix4x4 worldToCameraMatrix();
 	Matrix4x4 projectionMatrix();
 	Vector3 screenPoint(const Vector3& v);
+	bool CullFace(Vector3& v1, Vector3& v2, Vector3& v3);
 
 private:
 	float aspect;

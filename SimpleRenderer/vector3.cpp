@@ -180,9 +180,9 @@ float Vector3::Dot(const Vector3& v1, const Vector3& v2)
 		addps xmm0, xmm1;
 		movaps res, xmm0;
 	}
-	return res.z;
+	return res.x;
 #else
-	return (float)((double)v1.x * (double)v2.x + (double)v1.y * (double)v2.y + (double)v1.z * (double)v2.z + (double)v1.w * (double)v2.w);
+	return (float)((double)v1.x * (double)v2.x + (double)v1.y * (double)v2.y + (double)v1.z * (double)v2.z);
 #endif
 }
 

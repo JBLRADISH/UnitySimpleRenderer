@@ -3,9 +3,9 @@
 #include "color.h"
 #include "SDL.h"
 
-Uint32 Color2Uint32(Color* c)
+Uint32 Color2Uint32(const Color& c)
 {
-	return (c->r << 16) + (c->g << 8) + c->b;
+	return (c.r << 16) + (c.g << 8) + c.b;
 }
 
 inline void ASM_MEMSET_DWORD(void* dest, Uint32 data, int count)

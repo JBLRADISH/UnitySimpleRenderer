@@ -89,5 +89,11 @@
     <ClInclude Include="plane.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="alignallocator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="face.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
