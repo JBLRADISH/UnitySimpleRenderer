@@ -41,8 +41,8 @@ Vector3 Camera::screenPoint(const Vector3& v)
 	return screenPos;
 }
 
-//在世界空间下进行背面裁剪
-bool Camera::CullFace(Vector3& v1, Vector3& v2, Vector3& v3)
+//基于世界空间背面裁剪
+bool Camera::CullFace_WorldSpace(Vector3& v1, Vector3& v2, Vector3& v3)
 {
 	Vector3 e0 = v1 - v2;
 	Vector3 e1 = v2 - v3;
@@ -50,6 +50,19 @@ bool Camera::CullFace(Vector3& v1, Vector3& v2, Vector3& v3)
 	Vector3 view = transform.position - v1;
 	float dp = Vector3::Dot(n, view);
 	if (dp <= 0.0f)
+	{
+		return false;
+	}
+	return true;
+}
+
+//基于屏幕空间背面裁剪
+bool Camera::CullFace_ScreenSpace(Vector3& v1, Vector3& v2, Vector3& v3)
+{
+	//计算平面三角形有向面积 d >= 0 则被裁剪
+	float d = v1.x * (v2.y - v3.y) + v1.y * (v3.x - v2.x) + v2.x * v3.y - v3.x * v2.y;
+	//标准公式应该再d * 0.5f, 但现在只需得到正负
+	if (d >= 0)
 	{
 		return false;
 	}
