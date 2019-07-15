@@ -37,7 +37,8 @@ Mesh Obj::Load(const string& filename)
 		{
 			if (sscanf(buffer, "v %f %f %f", &v1, &v2, &v3) == 3)
 			{
-				mesh.vertices.push_back(Vector3(v1, v2, v3, 1.0f));
+				//unity加载obj模型会把x取反
+				mesh.vertices.push_back(Vector3(-v1, v2, v3, 1.0f));
 			}
 			else
 			{

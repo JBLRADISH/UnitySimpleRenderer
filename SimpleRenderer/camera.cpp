@@ -32,11 +32,12 @@ Matrix4x4 Camera::projectionMatrix()
 
 Vector3 Camera::screenPoint(const Vector3& v)
 {
-	float ndcX = v.x / v.w;
-	float ndcY = v.y / v.w;
+	float invW = 1 / v.w;
+	float ndcX = v.x * invW;
+	float ndcY = v.y * invW;
 	Vector3 screenPos;
-	screenPos.x = viewport.x + (ndcX + 1.0f) * 0.5f * viewport.width;
-	screenPos.y = viewport.y + (1.0f - (ndcY + 1.0f) * 0.5f) * viewport.height;
+	screenPos.x = viewport.x + (ndcX + 1.0f) * 0.5f * (viewport.width - 1);
+	screenPos.y = viewport.y + (1.0f - (ndcY + 1.0f) * 0.5f) * (viewport.height - 1);
 	return screenPos;
 }
 
@@ -45,7 +46,7 @@ bool Camera::CullFace(Vector3& v1, Vector3& v2, Vector3& v3)
 {
 	Vector3 e0 = v1 - v2;
 	Vector3 e1 = v2 - v3;
-	Vector3 n = Vector3::Cross(e0, e1);
+	Vector3 n = Vector3::Cross(e1, e0);
 	Vector3 view = transform.position - v1;
 	float dp = Vector3::Dot(n, view);
 	if (dp <= 0.0f)
