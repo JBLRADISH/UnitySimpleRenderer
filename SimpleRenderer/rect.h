@@ -16,4 +16,14 @@ public:
 		this->width = width;
 		this->height = height;
 	}
+
+	int xmax()
+	{
+		return x + width - 1;
+	}
+
+	int ymax()
+	{
+		return y + height - 1;
+	}
 };

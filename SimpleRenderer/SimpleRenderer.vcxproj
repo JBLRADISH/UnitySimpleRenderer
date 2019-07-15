@@ -128,8 +128,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="color.cpp" />
     <ClCompile Include="draw.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="material.cpp" />
     <ClCompile Include="mathf.cpp" />
     <ClCompile Include="matrix4x4.cpp" />
     <ClCompile Include="quaternion.cpp" />
@@ -144,6 +146,8 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="face.h" />
     <ClInclude Include="gameobject.h" />
+    <ClInclude Include="light.h" />
+    <ClInclude Include="material.h" />
     <ClInclude Include="mathf.h" />
     <ClInclude Include="matrix4x4.h" />
     <ClInclude Include="mesh.h" />

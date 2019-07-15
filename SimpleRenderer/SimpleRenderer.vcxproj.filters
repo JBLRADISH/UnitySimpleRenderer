@@ -39,6 +39,12 @@
     <ClCompile Include="transform.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="color.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="material.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="SDL2.dll" />
@@ -93,6 +99,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="face.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="material.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="light.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

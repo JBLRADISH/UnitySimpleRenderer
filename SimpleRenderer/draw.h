@@ -11,4 +11,7 @@ void DrawDLine(SDL_Surface* surface, int x1, int y1, int x2, int y2, const Color
 void DrawLine_Bresenham(SDL_Surface* surface, int x1, int y1, int x2, int y2, const Color& c);
 void DrawLine(SDL_Surface* surface, int x1, int y1, int x2, int y2, const Color& c);
 void DrawClipLine(SDL_Surface* surface, Rect& rect, int x1, int y1, int x2, int y2, const Color& c);
+void DrawClipTopTriangle(SDL_Surface* surface, Rect& rect, int x1, int y1, int x2, int x3, int y3, const Color& c);
+void DrawClipBottomTriangle(SDL_Surface* surface, Rect& rect, int x1, int y1, int x2, int x3, int y3, const Color& c);
+void DrawClipTriangle(SDL_Surface* surface, Rect& rect, int x1, int y1, int x2, int y2, int x3, int y3, const Color& c);
 void DrawClearColor(SDL_Surface* surface, const Color& c);

@@ -27,6 +27,7 @@ int main(int argc, char* args[])
 
 	go = &GameObject();
 	go->mesh = Obj::Load("pig.obj");
+	go->material = Material::CreateWireframe(Color::red);
 	go->transform.position = Vector3(0.0f, 1.5f, 0.0f);
 	go->transform.scale = Vector3(2.0f, 2.0f, 2.0f);
 	vertexBuffer.resize(go->mesh.vertexCount());
@@ -47,7 +48,7 @@ int main(int argc, char* args[])
 		//{
 		//	SDL_Delay(render.ping - endFrame + startFrame);
 		//}
-		cout << "FPS: " << 1000 / (endFrame - startFrame) << endl;
+		cout << "FPS: " << 1000 / fmaxf(1, (endFrame - startFrame)) << endl;
 	}
 
 	SDL_DestroyWindow(render.window);
@@ -78,11 +79,12 @@ void Input()
 
 void Render()
 {
-	DrawClearColor(render.screenSurface, Color(255, 255, 255));
+	DrawClearColor(render.screenSurface, Color::white);
 	for (int i = 0; i < go->mesh.vertexCount(); i++)
 	{
 		vertexBuffer[i] = m * go->mesh.vertices[i];
 	}
+	//背面裁剪
 	for (int i = 0; i < go->mesh.faces.size(); i++)
 	{
 		int vidx1 = go->mesh.faces[i].vidx1;
@@ -100,14 +102,21 @@ void Render()
 	}
 	for (int i = 0; i < go->mesh.faces.size(); i++)
 	{
-		if (go->mesh.faces[i].state == 1)
+		if (go->mesh.faces[i].state != 0)
 		{
 			int vidx1 = go->mesh.faces[i].vidx1;
 			int vidx2 = go->mesh.faces[i].vidx2;
 			int vidx3 = go->mesh.faces[i].vidx3;
-			DrawClipLine(render.screenSurface, cam->viewport, vertexBuffer[vidx1].x, vertexBuffer[vidx1].y, vertexBuffer[vidx2].x, vertexBuffer[vidx2].y, Color(55, 66, 81));
-			DrawClipLine(render.screenSurface, cam->viewport, vertexBuffer[vidx1].x, vertexBuffer[vidx1].y, vertexBuffer[vidx3].x, vertexBuffer[vidx3].y, Color(55, 66, 81));
-			DrawClipLine(render.screenSurface, cam->viewport, vertexBuffer[vidx2].x, vertexBuffer[vidx2].y, vertexBuffer[vidx3].x, vertexBuffer[vidx3].y, Color(55, 66, 81));
+			switch (go->material.shadingMode)
+			{
+			case ShadingMode::Wireframe:
+				DrawClipLine(render.screenSurface, cam->viewport, vertexBuffer[vidx1].x, vertexBuffer[vidx1].y, vertexBuffer[vidx2].x, vertexBuffer[vidx2].y, go->material.cDiffuse);
+				DrawClipLine(render.screenSurface, cam->viewport, vertexBuffer[vidx1].x, vertexBuffer[vidx1].y, vertexBuffer[vidx3].x, vertexBuffer[vidx3].y, go->material.cDiffuse);
+				DrawClipLine(render.screenSurface, cam->viewport, vertexBuffer[vidx2].x, vertexBuffer[vidx2].y, vertexBuffer[vidx3].x, vertexBuffer[vidx3].y, go->material.cDiffuse);
+				break;
+			case ShadingMode::Constant:
+				DrawClipTriangle(render.screenSurface, cam->viewport, vertexBuffer[vidx1].x, vertexBuffer[vidx1].y, vertexBuffer[vidx2].x, vertexBuffer[vidx2].y, vertexBuffer[vidx3].x, vertexBuffer[vidx3].y, go->material.cDiffuse);
+			}
 		}
 	}
 	SDL_UpdateWindowSurface(render.window);
