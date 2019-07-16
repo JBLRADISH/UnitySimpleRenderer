@@ -30,21 +30,21 @@ int main(int argc, char* args[])
 	}
 
 	go = &GameObject();
-	go->mesh = Obj::Load("pig.obj");
+	go->mesh = Obj::Load("lenin.obj");
 	go->material = Material::CreateFlat(Color::white);
-	go->transform.position = Vector3(0.0f, 1.5f, 0.0f);
-	go->transform.scale = Vector3(2.0f, 2.0f, 2.0f);
+	go->transform.scale = Vector3::one * 0.01f;
 	vertexBuffer.resize(go->mesh.vertexCount());
 	colorBuffer.resize(go->mesh.faces.size());
 
 	cam = &Camera(60.0f, 0.3f, 1000.0f, Rect(0, 0, 800, 600));
-	cam->transform.position = Vector3(0.0f, 0.0f, -10.0f);
+	cam->transform.position = Vector3(236.6051f, 119.8119f, -1.424029f);
+	cam->transform.rotation = Quaternion::Euler(Vector3(6.532001f, -90.06901f, 0.0f));
 
 	m = go->transform.localToWorldMatrix();
 	vp = cam->projectionMatrix() * cam->worldToCameraMatrix();
 	mvp = vp * m;
 
-	Light directional = Light::CreateDirectionalLight(Quaternion::Euler(Vector3(90.0f, 0.0f, 0.0f)));
+	Light directional = Light::CreateDirectionalLight(Quaternion::Euler(Vector3(90.0f, 0.0f, 0.0f)), Color::red, 2.0f);
 	lights.push_back(directional);
 
 	while (!quit)
@@ -128,7 +128,7 @@ void Render()
 		}
 		for (int i = 0; i < go->mesh.vertexCount(); i++)
 		{
-			vertexBuffer[i] = vp * go->mesh.vertices[i];
+			vertexBuffer[i] = vp * vertexBuffer[i];
 			vertexBuffer[i] = cam->screenPoint(vertexBuffer[i]);
 		}
 	}

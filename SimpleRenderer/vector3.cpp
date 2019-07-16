@@ -40,7 +40,7 @@ Vector3 Vector3::operator-(const Vector3& v) const
 }
 
 //œÚ¡ø≥À∑®
-Vector3 Vector3::operator*(float f)
+Vector3 Vector3::operator*(float f) const
 {
 	return Vector3(x * f, y * f, z * f, w * f);
 }

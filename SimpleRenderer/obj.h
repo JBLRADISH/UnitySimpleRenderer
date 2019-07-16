@@ -25,7 +25,8 @@ Mesh Obj::Load(const string& filename)
 
 	char buffer[256];
 	float v1, v2, v3;
-	int vidx1, vidx2, vidx3, uvidx1, uvidx2, uvidx3, nidx1, nidx2, nidx3;
+	int vidx1, vidx2, vidx3, uvidx1, uvidx2, uvidx3;
+	float uv1, uv2, uv3;
 	int line = 1;
 
 	while (!in.getline(buffer, 255).eof())
@@ -49,9 +50,9 @@ Mesh Obj::Load(const string& filename)
 		//读面
 		else if (buffer[0] == 'f' && buffer[1] == ' ')
 		{
-			if (sscanf(buffer, "f %d %d %d", &vidx1, &vidx2, &vidx3) == 3)
+			if (sscanf(buffer, "f %d/%d %d/%d %d/%d", &vidx1, &uvidx1, &vidx2, &uvidx2, &vidx3, &uvidx3) == 6)
 			{
-				mesh.faces.push_back(Face(vidx1 - 1, vidx2 - 1, vidx3 - 1));
+				mesh.faces.push_back(Face(vidx1 - 1, vidx2 - 1, vidx3 - 1, uvidx1 - 1, uvidx2 - 1, uvidx3 - 1));
 			}
 			else
 			{
@@ -59,7 +60,24 @@ Mesh Obj::Load(const string& filename)
 				return mesh;
 			}
 		}
+		//读UV
+		else if (buffer[0] == 'v' && buffer[1] == 't')
+		{
+			if (sscanf(buffer, "vt %f %f %f", &uv1, &uv2, &uv3) == 3)
+			{
+				mesh.uv.push_back(Vector2(uv1, uv2));
+			}
+			else
+			{
+				cout << "line " << line << " : uv not in wanted format in OBJLoader" << "\n";
+				return mesh;
+			}
+		}
 		line++;
 	}
+
+	//计算顶点法线
+	mesh.RecalculateNormals();
+
 	return mesh;
 }

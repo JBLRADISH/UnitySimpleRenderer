@@ -268,7 +268,7 @@ void DrawClipTopTriangle(SDL_Surface* surface, Rect& rect, int x1, int y1, int x
 				if (left > rect.xmax())
 					continue;
 			}
-			ASM_MEMSET_DWORD(start + left, pixel, right + left - 1);
+			ASM_MEMSET_DWORD(start + left, pixel, right - left + 1);
 		}
 	}
 }
@@ -335,7 +335,7 @@ void DrawClipBottomTriangle(SDL_Surface* surface, Rect& rect, int x1, int y1, in
 				if (left > rect.xmax())
 					continue;
 			}
-			ASM_MEMSET_DWORD(start + left, pixel, right + left - 1);
+			ASM_MEMSET_DWORD(start + left, pixel, right - left + 1);
 		}
 	}
 }

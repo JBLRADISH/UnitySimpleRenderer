@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include "vector2.h"
 #include "vector3.h"
 #include "alignallocator.h"
 #include "face.h"
@@ -12,9 +13,10 @@ public:
 	//SSE需要地址16字节对齐 所以要自定义Allocator
 	vector<Vector3, AlignmentAllocator<Vector3>> vertices;
 	vector<Face> faces;
+	vector<Vector3, AlignmentAllocator<Vector3>> normals;
+	vector<Vector2> uv;
 
-	int vertexCount()
-	{
-		return vertices.size();
-	}
+	int vertexCount();
+
+	void RecalculateNormals();
 };

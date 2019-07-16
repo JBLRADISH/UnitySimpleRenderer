@@ -135,6 +135,7 @@
     <ClCompile Include="material.cpp" />
     <ClCompile Include="mathf.cpp" />
     <ClCompile Include="matrix4x4.cpp" />
+    <ClCompile Include="mesh.cpp" />
     <ClCompile Include="quaternion.cpp" />
     <ClCompile Include="transform.cpp" />
     <ClCompile Include="vector3.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="draw.h" />
     <ClInclude Include="tool.h" />
     <ClInclude Include="transform.h" />
+    <ClInclude Include="vector2.h" />
     <ClInclude Include="vector3.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

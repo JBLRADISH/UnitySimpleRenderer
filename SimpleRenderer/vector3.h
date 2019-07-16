@@ -61,7 +61,7 @@ public:
 	bool operator!=(const Vector3& v);
 	Vector3 operator+(const Vector3& v);
 	Vector3 operator-(const Vector3& v) const;
-	Vector3 operator*(float f);
+	Vector3 operator*(float f) const;
 	friend Vector3 operator*(float f, const Vector3& v);
 	Vector3 operator/(float f);
 
