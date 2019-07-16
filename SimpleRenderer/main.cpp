@@ -44,10 +44,8 @@ int main(int argc, char* args[])
 	vp = cam->projectionMatrix() * cam->worldToCameraMatrix();
 	mvp = vp * m;
 
-	Transform t;
-	t.position = Vector3(-2.0f, 0.366f, -10.3811f);
-	Light ambient = Light::CreateSpotLight(t);
-	lights.push_back(ambient);
+	Light directional = Light::CreateDirectionalLight(Quaternion::Euler(Vector3(90.0f, 0.0f, 0.0f)));
+	lights.push_back(directional);
 
 	while (!quit)
 	{

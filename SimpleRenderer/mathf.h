@@ -12,6 +12,8 @@ const float Epsilon = 1.401298E-45f;
 
 float Clamp(float value, float min, float max);
 
+int Clamp(int value, int min, int max);
+
 bool Equal(float f1, float f2);
 
 float SmoothStep(float t);
