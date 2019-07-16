@@ -5,6 +5,7 @@
 
 enum LightType
 {
+	Ambient,
 	Directional,
 	Point,
 	Spot
@@ -17,18 +18,22 @@ public:
 	LightType type;
 	Color color;
 	float intensity;
-	//常量衰减因子
-	float kc;
-	//线性衰减因子
-	float kl;
-	//二次衰减因子
-	float kq;
-	//点光源范围
 	float range;
 	//聚光灯内锥角
 	float spotInnerAngle;
 	//聚光灯外锥角
 	float spotOuterAngle;
-	//聚光灯指数因子
-	float pf;
+
+	static Light CreateAmbientLight(const Color& c, float intensity = 1.0f);
+
+	static Light CreateDirectionalLight(const Quaternion& q, const Color& c = Color::white, float intensity = 1.0f);
+
+	static Light CreatePointLight(const Vector3& p, const Color& c = Color::white, float intensity = 1.0f, float range = 10.0f);
+
+	static Light CreateSpotLight(const Transform& t, const Color& c = Color::white, float intensity = 1.0f, float range = 10.0f, float spotInnerAngle = 0.0f, float spotOuterAngle = 30.0f);
+
+	Vector3 GetLightDir();
+
+	Color GetLightColor(const Vector3& p, const Vector3& n);
+
 };

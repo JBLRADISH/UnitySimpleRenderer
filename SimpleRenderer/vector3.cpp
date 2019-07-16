@@ -34,7 +34,7 @@ Vector3 Vector3::operator+(const Vector3& v)
 }
 
 //向量减法
-Vector3 Vector3::operator-(const Vector3& v)
+Vector3 Vector3::operator-(const Vector3& v) const
 {
 	return Vector3(x - v.x, y - v.y, z - v.z, w - v.w);
 }
@@ -86,9 +86,8 @@ float Vector3::Magnitude()
 		addps xmm1, xmm0;
 		shufps xmm0, xmm1, SIMD_SHUFFLE(0x02, 0x03, 0x00, 0x01);
 		addps xmm0, xmm1;
-		movaps res, xmm0;
 		//sqrtss 只计算低32位的平方根 sqrtps会计算4个32位的平方根
-		sqrtss xmm0, res.z;
+		sqrtss xmm0, xmm0;
 		movaps res, xmm0;
 	}
 	return res.x;
@@ -111,8 +110,7 @@ float Vector3::Magnitude(const Vector3& v)
 		addps xmm1, xmm0;
 		shufps xmm0, xmm1, SIMD_SHUFFLE(0x02, 0x03, 0x00, 0x01);
 		addps xmm0, xmm1;
-		movaps res, xmm0;
-		sqrtss xmm0, res.z;
+		sqrtss xmm0, xmm0;
 		movaps res, xmm0;
 	}
 	return res.x;

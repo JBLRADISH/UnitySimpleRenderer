@@ -31,5 +31,7 @@ public:
 
 	static Material CreateConstant(const Color& c);
 
+	static Material CreateFlat(const Color& c, float ka = 1.0f, float kd = 1.0f);
+
 	static Material CreateGouraud(float ka = 0.0f, float kd = 1.0f, float ks = 0.0f, float power = 128.0f, const Color& cDiffuse = Color::white, const Color& cSpecular = Color::white);
 };

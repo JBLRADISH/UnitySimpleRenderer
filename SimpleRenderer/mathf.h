@@ -14,3 +14,5 @@ float Clamp(float value, float min, float max);
 
 bool Equal(float f1, float f2);
 
+float SmoothStep(float t);
+

@@ -17,3 +17,8 @@ bool Equal(float f1, float f2)
 	}
 	return false;
 }
+
+float SmoothStep(float t)
+{
+	return (float)(-2.0 * (double)t * (double)t * (double)t + 3.0 * (double)t * (double)t);
+}

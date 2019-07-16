@@ -16,6 +16,16 @@ Material Material::CreateConstant(const Color& c)
 	return res;
 }
 
+Material Material::CreateFlat(const Color& c, float ka, float kd)
+{
+	Material res;
+	res.shadingMode = ShadingMode::Flat;
+	res.ka = ka;
+	res.kd = kd;
+	res.cDiffuse = c * kd;
+	return res;
+}
+
 Material Material::CreateGouraud(float ka, float kd, float ks, float power, const Color& cDiffuse, const Color& cSpecular)
 {
 	Material res;

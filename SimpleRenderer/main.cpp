@@ -4,6 +4,7 @@
 #include "obj.h"
 #include "gameobject.h"
 #include "camera.h"
+#include "light.h";
 
 void Input();
 void Render();
@@ -15,7 +16,11 @@ SDL_Event e;
 GameObject* go;
 Camera* cam;
 vector<Vector3> vertexBuffer;
+vector<Color> colorBuffer;
+Matrix4x4 m;
+Matrix4x4 vp;
 Matrix4x4 mvp;
+vector<Light> lights;
 
 int main(int argc, char* args[])
 {
@@ -26,14 +31,23 @@ int main(int argc, char* args[])
 
 	go = &GameObject();
 	go->mesh = Obj::Load("pig.obj");
-	go->material = Material::CreateConstant(Color::red);
+	go->material = Material::CreateFlat(Color::white);
 	go->transform.position = Vector3(0.0f, 1.5f, 0.0f);
 	go->transform.scale = Vector3(2.0f, 2.0f, 2.0f);
 	vertexBuffer.resize(go->mesh.vertexCount());
+	colorBuffer.resize(go->mesh.faces.size());
+
 	cam = &Camera(60.0f, 0.3f, 1000.0f, Rect(0, 0, 800, 600));
 	cam->transform.position = Vector3(0.0f, 0.0f, -10.0f);
 
-	mvp = cam->projectionMatrix() * cam->worldToCameraMatrix() * go->transform.localToWorldMatrix();
+	m = go->transform.localToWorldMatrix();
+	vp = cam->projectionMatrix() * cam->worldToCameraMatrix();
+	mvp = vp * m;
+
+	Transform t;
+	t.position = Vector3(-2.0f, 0.366f, -10.3811f);
+	Light ambient = Light::CreateSpotLight(t);
+	lights.push_back(ambient);
 
 	while (!quit)
 	{
@@ -77,10 +91,48 @@ void Input()
 void Render()
 {
 	DrawClearColor(render.screenSurface, Color::white);
-	for (int i = 0; i < go->mesh.vertexCount(); i++)
+	if (go->material.shadingMode == ShadingMode::Wireframe || go->material.shadingMode == ShadingMode::Constant)
 	{
-		vertexBuffer[i] = mvp * go->mesh.vertices[i];
-		vertexBuffer[i] = cam->screenPoint(vertexBuffer[i]);
+		for (int i = 0; i < go->mesh.vertexCount(); i++)
+		{
+			vertexBuffer[i] = mvp * go->mesh.vertices[i];
+			vertexBuffer[i] = cam->screenPoint(vertexBuffer[i]);
+		}
+	}
+	else
+	{
+		for (int i = 0; i < go->mesh.vertexCount(); i++)
+		{
+			vertexBuffer[i] = m * go->mesh.vertices[i];
+		}
+		for (int i = 0; i < go->mesh.faces.size(); i++)
+		{
+			Vector3 v1 = vertexBuffer[go->mesh.faces[i].vidx1];
+			Vector3 v2 = vertexBuffer[go->mesh.faces[i].vidx2];
+			Vector3 v3 = vertexBuffer[go->mesh.faces[i].vidx3];
+			Vector3 e0 = v1 - v2;
+			Vector3 e1 = v2 - v3;
+			Vector3 n = Vector3::Cross(e1, e0);
+			Color c = Color::black;
+			for (int j = 0; j < lights.size(); j++)
+			{
+				Light light = lights[j];
+				if (light.type == LightType::Ambient)
+				{
+					c = c + light.GetLightColor(v1, n) * go->material.ka;
+				}
+				else
+				{
+					c = c + go->material.cDiffuse * light.GetLightColor(v1, n);
+				}
+			}
+			colorBuffer[i] = c;
+		}
+		for (int i = 0; i < go->mesh.vertexCount(); i++)
+		{
+			vertexBuffer[i] = vp * go->mesh.vertices[i];
+			vertexBuffer[i] = cam->screenPoint(vertexBuffer[i]);
+		}
 	}
 	for (int i = 0; i < go->mesh.faces.size(); i++)
 	{
@@ -98,6 +150,8 @@ void Render()
 				break;
 			case ShadingMode::Constant:
 				DrawClipTriangle(render.screenSurface, cam->viewport, v1.x, v1.y, v2.x, v2.y, v3.x, v3.y, go->material.cDiffuse);
+			case ShadingMode::Flat:
+				DrawClipTriangle(render.screenSurface, cam->viewport, v1.x, v1.y, v2.x, v2.y, v3.x, v3.y, colorBuffer[i]);
 			}
 		}
 	}

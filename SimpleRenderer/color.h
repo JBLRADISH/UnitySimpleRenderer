@@ -22,5 +22,7 @@ public:
 		this->b = b;
 	}
 
+	Color operator+(const Color& c) const;
 	Color operator*(float k) const;
+	Color operator*(const Color& c) const;
 };

@@ -5,7 +5,7 @@
 
 Uint32 Color2Uint32(const Color& c)
 {
-	return (c.r << 16) + (c.g << 8) + c.b;
+	return ((c.r & 255) << 16) + ((c.g & 255) << 8) + (c.b & 255);
 }
 
 inline void ASM_MEMSET_DWORD(void* dest, Uint32 data, int count)
