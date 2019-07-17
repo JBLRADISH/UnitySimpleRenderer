@@ -4,7 +4,9 @@
 #include "obj.h"
 #include "gameobject.h"
 #include "camera.h"
-#include "light.h";
+#include "light.h"
+#include "texture.h"
+#include "bmp.h"
 
 void Input();
 void Render();
@@ -29,9 +31,8 @@ int main(int argc, char* args[])
 		return 0;
 	}
 
-	go = &GameObject();
-	go->mesh = Obj::Load("lenin.obj");
-	go->material = Material::CreateFlat(Color::white);
+	GameObject tmp = Obj::Load("lenin.obj");
+	go = &tmp;
 	go->transform.scale = Vector3::one * 0.01f;
 	vertexBuffer.resize(go->mesh.vertexCount());
 	colorBuffer.resize(go->mesh.faces.size());
@@ -117,7 +118,7 @@ void Render()
 				Light light = lights[j];
 				if (light.type == LightType::Ambient)
 				{
-					c = c + light.GetLightColor(v1, n) * go->material.ka;
+					c = c + light.GetLightColor(v1, n) * go->material.cAmbient;
 				}
 				else
 				{

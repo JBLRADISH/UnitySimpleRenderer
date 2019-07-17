@@ -11,12 +11,12 @@ public:
 	Transform transform;
 	Rect viewport;
 	float fov;
-	float near;
-	float far;
+	float zNear;
+	float zFar;
 
 	Camera() = default;
 
-	Camera(float fov, float near, float far, const Rect& viewport);
+	Camera(float fov, float zNear, float zFar, const Rect& viewport);
 
 	Matrix4x4 cameraToWorldMatrix();
 	Matrix4x4 worldToCameraMatrix();

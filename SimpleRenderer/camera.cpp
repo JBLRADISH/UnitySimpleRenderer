@@ -1,10 +1,10 @@
 #include "camera.h"
 
-Camera::Camera(float fov, float near, float far, const Rect& viewport)
+Camera::Camera(float fov, float zNear, float zFar, const Rect& viewport)
 {
 	this->fov = fov;
-	this->near = near;
-	this->far = far;
+	this->zNear = zNear;
+	this->zFar = zFar;
 	this->viewport = viewport;
 	aspect = (float)viewport.width / (float)viewport.height;
 }
@@ -27,7 +27,7 @@ Matrix4x4 Camera::worldToCameraMatrix()
 
 Matrix4x4 Camera::projectionMatrix()
 {
-	return Matrix4x4::Perspective(fov, aspect, near, far);
+	return Matrix4x4::Perspective(fov, aspect, zNear, zFar);
 }
 
 Vector3 Camera::screenPoint(const Vector3& v)

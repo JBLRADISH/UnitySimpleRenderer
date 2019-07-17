@@ -42,9 +42,6 @@
     <ClCompile Include="color.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="material.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="light.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -114,6 +111,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="vector2.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="bmp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "color.h"
+#include "texture.h"
 
 enum ShadingMode
 {
@@ -15,23 +16,23 @@ class Material
 public:
 	ShadingMode shadingMode;
 
-	//环境光反射系数
-	float ka;
-	//散射光反射系数
-	float kd;
-	//镜面反射光的反射系数
-	float ks;
-	//镜面反射指数
-	float power;
-
+	Color cAmbient;
 	Color cDiffuse;
 	Color cSpecular;
 
-	static Material CreateWireframe(const Color& c);
+	//镜面反射指数
+	float power;
 
-	static Material CreateConstant(const Color& c);
+	Texture diffuseTex;
+	Texture specularTex;
+	Texture normalTex;
 
-	static Material CreateFlat(const Color& c, float ka = 1.0f, float kd = 1.0f);
-
-	static Material CreateGouraud(float ka = 0.0f, float kd = 1.0f, float ks = 0.0f, float power = 128.0f, const Color& cDiffuse = Color::white, const Color& cSpecular = Color::white);
+	Material()
+	{
+		shadingMode = ShadingMode::Wireframe;
+		cAmbient = Color::black;
+		cDiffuse = Color::white;
+		cSpecular = Color::black;
+		power = 0.0f;
+	}
 };

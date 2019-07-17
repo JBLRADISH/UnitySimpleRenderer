@@ -3,9 +3,10 @@
 class Color
 {
 public:
-	int r;
-	int g;
-	int b;
+	unsigned int r;
+	unsigned int g;
+	unsigned int b;
+	unsigned int a;
 
 	Color() = default;
 
@@ -15,7 +16,7 @@ public:
 	static const Color green;
 	static const Color blue;
 
-	Color(int r, int g, int b)
+	Color(unsigned int r, unsigned int g, unsigned int b)
 	{
 		this->r = r;
 		this->g = g;
