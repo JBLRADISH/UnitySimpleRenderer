@@ -19,16 +19,16 @@ public:
 		fp = fopen(filename.c_str(), "rb");
 		if (fp != NULL)
 		{
-			cout << "位图文件名:" << filename << endl;
+			//cout << "位图文件名:" << filename << endl;
 			fread(&header, 1, sizeof(BITMAPFILEHEADER), fp);
-			showBmpHead(header);
+			//showBmpHead(header);
 			if (0x4d42 != header.bfType)
 			{
 				cout << filename << " is not a bmp file!" << endl;
 				return res;
 			}
 			fread(&info, 1, sizeof(BITMAPINFOHEADER), fp);
-			showBmpInforHead(info);
+			//showBmpInforHead(info);
 			for (unsigned int nCounti = 0; nCounti < info.biClrUsed; nCounti++)
 			{
 				fread((char*)& palette[nCounti].rgbBlue, 1, sizeof(BYTE), fp);

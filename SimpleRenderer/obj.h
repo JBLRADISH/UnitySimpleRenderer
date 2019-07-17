@@ -121,7 +121,7 @@ Material Obj::LoadMaterial(const string& filename)
 		{
 			if (sscanf(buffer, "Ka %f %f %f", &r, &g, &b) == 3)
 			{
-				res.cAmbient = Color(r * 255, g * 255, b * 255);
+				res.cAmbient = Color(r, g, b);
 			}
 			else
 			{
@@ -134,7 +134,7 @@ Material Obj::LoadMaterial(const string& filename)
 		{
 			if (sscanf(buffer, "Kd %f %f %f", &r, &g, &b) == 3)
 			{
-				res.cDiffuse = Color(r * 255, g * 255, b * 255);
+				res.cDiffuse = Color(r, g, b);
 			}
 			else
 			{
@@ -147,7 +147,7 @@ Material Obj::LoadMaterial(const string& filename)
 		{
 			if (sscanf(buffer, "Ks %f %f %f", &r, &g, &b) == 3)
 			{
-				res.cSpecular = Color(r * 255, g * 255, b * 255);
+				res.cSpecular = Color(r, g, b);
 			}
 			else
 			{

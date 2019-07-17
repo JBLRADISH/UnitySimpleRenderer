@@ -33,9 +33,10 @@ int main(int argc, char* args[])
 
 	GameObject tmp = Obj::Load("lenin.obj");
 	go = &tmp;
+	go->material.shadingMode = ShadingMode::Gouraud;
+	go->material.cDiffuse = Color::white;
 	go->transform.scale = Vector3::one * 0.01f;
 	vertexBuffer.resize(go->mesh.vertexCount());
-	colorBuffer.resize(go->mesh.faces.size());
 
 	cam = &Camera(60.0f, 0.3f, 1000.0f, Rect(0, 0, 800, 600));
 	cam->transform.position = Vector3(236.6051f, 119.8119f, -1.424029f);
@@ -89,7 +90,7 @@ void Input()
 
 void Render()
 {
-	DrawClearColor(render.screenSurface, Color::white);
+	Draw::DrawClearColor(render.screenSurface, Color::white);
 	if (go->material.shadingMode == ShadingMode::Wireframe || go->material.shadingMode == ShadingMode::Constant)
 	{
 		for (int i = 0; i < go->mesh.vertexCount(); i++)
@@ -100,32 +101,60 @@ void Render()
 	}
 	else
 	{
-		for (int i = 0; i < go->mesh.vertexCount(); i++)
+		if (go->material.shadingMode == ShadingMode::Flat)
 		{
-			vertexBuffer[i] = m * go->mesh.vertices[i];
-		}
-		for (int i = 0; i < go->mesh.faces.size(); i++)
-		{
-			Vector3 v1 = vertexBuffer[go->mesh.faces[i].vidx1];
-			Vector3 v2 = vertexBuffer[go->mesh.faces[i].vidx2];
-			Vector3 v3 = vertexBuffer[go->mesh.faces[i].vidx3];
-			Vector3 e0 = v1 - v2;
-			Vector3 e1 = v2 - v3;
-			Vector3 n = Vector3::Cross(e1, e0);
-			Color c = Color::black;
-			for (int j = 0; j < lights.size(); j++)
+			for (int i = 0; i < go->mesh.vertexCount(); i++)
 			{
-				Light light = lights[j];
-				if (light.type == LightType::Ambient)
-				{
-					c = c + light.GetLightColor(v1, n) * go->material.cAmbient;
-				}
-				else
-				{
-					c = c + go->material.cDiffuse * light.GetLightColor(v1, n);
-				}
+				vertexBuffer[i] = m * go->mesh.vertices[i];
 			}
-			colorBuffer[i] = c;
+			colorBuffer.resize(go->mesh.faces.size());
+			for (int i = 0; i < go->mesh.faces.size(); i++)
+			{
+				Vector3 v1 = vertexBuffer[go->mesh.faces[i].vidx1];
+				Vector3 v2 = vertexBuffer[go->mesh.faces[i].vidx2];
+				Vector3 v3 = vertexBuffer[go->mesh.faces[i].vidx3];
+				Vector3 e0 = v1 - v2;
+				Vector3 e1 = v2 - v3;
+				Vector3 n = Vector3::Cross(e1, e0);
+				Color c = Color::black;
+				for (int j = 0; j < lights.size(); j++)
+				{
+					Light light = lights[j];
+					if (light.type == LightType::Ambient)
+					{
+						c = c + light.GetLightColor(v1, n) * go->material.cAmbient;
+					}
+					else
+					{
+						c = c + go->material.cDiffuse * light.GetLightColor(v1, n);
+					}
+				}
+				colorBuffer[i] = c;
+			}
+		}
+		else if (go->material.shadingMode == ShadingMode::Gouraud)
+		{
+			colorBuffer.resize(go->mesh.vertexCount());
+			for (int i = 0; i < go->mesh.vertexCount(); i++)
+			{
+				vertexBuffer[i] = m * go->mesh.vertices[i];
+				Vector3 v1 = vertexBuffer[i];
+				Vector3 n = m * go->mesh.normals[i];
+				Color c = Color::black;
+				for (int j = 0; j < lights.size(); j++)
+				{
+					Light light = lights[j];
+					if (light.type == LightType::Ambient)
+					{
+						c = c + light.GetLightColor(v1, n) * go->material.cAmbient;
+					}
+					else
+					{
+						c = c + go->material.cDiffuse * light.GetLightColor(v1, n);
+					}
+				}
+				colorBuffer[i] = c;
+			}
 		}
 		for (int i = 0; i < go->mesh.vertexCount(); i++)
 		{
@@ -143,14 +172,19 @@ void Render()
 			switch (go->material.shadingMode)
 			{
 			case ShadingMode::Wireframe:
-				DrawClipLine(render.screenSurface, cam->viewport, v1.x, v1.y, v2.x, v2.y, go->material.cDiffuse);
-				DrawClipLine(render.screenSurface, cam->viewport, v1.x, v1.y, v3.x, v3.y, go->material.cDiffuse);
-				DrawClipLine(render.screenSurface, cam->viewport, v2.x, v2.y, v3.x, v3.y, go->material.cDiffuse);
+				Draw::DrawClipLine(render.screenSurface, cam->viewport, v1.x, v1.y, v2.x, v2.y, go->material.cDiffuse);
+				Draw::DrawClipLine(render.screenSurface, cam->viewport, v1.x, v1.y, v3.x, v3.y, go->material.cDiffuse);
+				Draw::DrawClipLine(render.screenSurface, cam->viewport, v2.x, v2.y, v3.x, v3.y, go->material.cDiffuse);
 				break;
 			case ShadingMode::Constant:
-				DrawClipTriangle(render.screenSurface, cam->viewport, v1.x, v1.y, v2.x, v2.y, v3.x, v3.y, go->material.cDiffuse);
+				Draw::DrawTriangle_Flat(render.screenSurface, cam->viewport, v1.x, v1.y, v2.x, v2.y, v3.x, v3.y, go->material.cDiffuse);
+				break;
 			case ShadingMode::Flat:
-				DrawClipTriangle(render.screenSurface, cam->viewport, v1.x, v1.y, v2.x, v2.y, v3.x, v3.y, colorBuffer[i]);
+				Draw::DrawTriangle_Flat(render.screenSurface, cam->viewport, v1.x, v1.y, v2.x, v2.y, v3.x, v3.y, colorBuffer[i]);
+				break;
+			case ShadingMode::Gouraud:
+				Draw::DrawTriangle_Gouraud(render.screenSurface, cam->viewport, v1.x, v1.y, v2.x, v2.y, v3.x, v3.y, colorBuffer[go->mesh.faces[i].vidx1], colorBuffer[go->mesh.faces[i].vidx2], colorBuffer[go->mesh.faces[i].vidx3]);
+				break;
 			}
 		}
 	}

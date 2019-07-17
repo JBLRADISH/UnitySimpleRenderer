@@ -1,14 +1,19 @@
 #include "color.h"
 
-const Color Color::white = Color(255, 255, 255);
-const Color Color::black = Color(0, 0, 0);
-const Color Color::red = Color(255, 0, 0);
-const Color Color::green = Color(0, 255, 0);
-const Color Color::blue = Color(0, 0, 255);
+const Color Color::white = Color(1.0f, 1.0f, 1.0f);
+const Color Color::black = Color(0.0f, 0.0f, 0.0f);
+const Color Color::red = Color(1.0f, 0.0f, 0.0f);
+const Color Color::green = Color(0.0f, 1.0f, 0.0f);
+const Color Color::blue = Color(0.0f, 0.0f, 1.0f);
 
 Color Color::operator+(const Color& c) const
 {
 	return Color(r + c.r, g + c.g, b + c.b);
+}
+
+Color Color::operator-(const Color& c) const
+{
+	return Color(r - c.r, g - c.g, b - c.b);
 }
 
 Color Color::operator*(float k) const
@@ -18,6 +23,10 @@ Color Color::operator*(float k) const
 
 Color Color::operator*(const Color& c) const
 {
-	float inv = 1.0f / 255.0f;
-	return Color(r * c.r * inv, g * c.g * inv, b * c.b * inv);
+	return Color(r * c.r, g * c.g, b * c.b);
+}
+
+Color Color::operator/(float k) const
+{
+	return Color(r / k, g / k, b / k);
 }

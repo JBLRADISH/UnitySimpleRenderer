@@ -6,7 +6,7 @@
 
 Uint32 Color2Uint32(const Color& c)
 {
-	return (Clamp(c.r, 0, 255) << 16) + (Clamp(c.g, 0, 255) << 8) + Clamp(c.b, 0, 255);
+	return (Clamp(Round(c.r * 255), 0, 255) << 16) + (Clamp(Round(c.g * 255), 0, 255) << 8) + Clamp(Round(c.b * 255), 0, 255);
 }
 
 inline void ASM_MEMSET_DWORD(void* dest, Uint32 data, int count)

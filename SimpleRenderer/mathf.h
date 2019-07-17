@@ -18,3 +18,5 @@ bool Equal(float f1, float f2);
 
 float SmoothStep(float t);
 
+int Round(float value);
+

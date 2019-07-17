@@ -3,10 +3,10 @@
 class Color
 {
 public:
-	unsigned int r;
-	unsigned int g;
-	unsigned int b;
-	unsigned int a;
+	float r;
+	float g;
+	float b;
+	float a;
 
 	Color() = default;
 
@@ -16,7 +16,7 @@ public:
 	static const Color green;
 	static const Color blue;
 
-	Color(unsigned int r, unsigned int g, unsigned int b)
+	Color(float r, float g, float b)
 	{
 		this->r = r;
 		this->g = g;
@@ -24,6 +24,8 @@ public:
 	}
 
 	Color operator+(const Color& c) const;
+	Color operator-(const Color& c) const;
 	Color operator*(float k) const;
 	Color operator*(const Color& c) const;
+	Color operator/(float k) const;
 };
