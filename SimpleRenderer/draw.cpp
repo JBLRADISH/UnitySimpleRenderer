@@ -735,6 +735,313 @@ void Draw::DrawTriangle_Gouraud(SDL_Surface* surface, Rect& rect, float x1, floa
 	}
 }
 
+void Draw::DrawTopTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, float x1, float y1, float x2, float x3, float y3, const Vector2& uv1, const Vector2& uv2, const Vector2& uv3, const Texture& tex)
+{
+	Vector2 newUV1 = uv1;
+	Vector2 newUV2 = uv2;
+	if (x2 < x1)
+	{
+		float tmp = x2;
+		x2 = x1;
+		x1 = tmp;
+		Vector2 tmp2 = newUV2;
+		newUV2 = newUV1;
+		newUV1 = tmp2;
+	}
+
+	float height = y3 - y1;
+	float invHeight = 1 / (y3 - y1);
+	float dx_left = (x3 - x1) * invHeight;
+	float dx_right = (x3 - x2) * invHeight;
+	Vector2 duv_left = (uv3 - newUV1) * invHeight;
+	Vector2 duv_right = (uv3 - newUV2) * invHeight;
+
+	float xs = x1;
+	float xe = x2;
+	Vector2 uvs = newUV1;
+	Vector2 uve = newUV2;
+
+	int iy1, iy3;
+
+	if (y1 < rect.y)
+	{
+		xs = xs + dx_left * (rect.y - y1);
+		xe = xe + dx_right * (rect.y - y1);
+		uvs = uvs + duv_left * (rect.y - y1);
+		uve = uve + duv_right * (rect.y - y1);
+		y1 = rect.y;
+		iy1 = y1;
+	}
+	else
+	{
+		iy1 = ceilf(y1);
+		xs = xs + dx_left * (iy1 - y1);
+		xe = xe + dx_right * (iy1 - y1);
+		uvs = uvs + duv_left * (iy1 - y1);
+		uve = uve + duv_right * (iy1 - y1);
+	}
+	if (y3 > rect.ymax())
+	{
+		y3 = rect.ymax();
+		iy3 = y3 - 1;
+	}
+	else
+	{
+		iy3 = ceilf(y3) - 1;
+	}
+
+	Uint32* start = GetPixelAddress(surface, 0, iy1);
+
+	if (x1 >= rect.x && x1 <= rect.xmax() && x2 >= rect.x && x2 <= rect.xmax() && x3 >= rect.x && x3 <= rect.xmax())
+	{
+		for (int i = iy1; i <= iy3; i++, start += surface->pitch >> 2)
+		{
+			Vector2 curUV = uvs;
+			Uint32* curP = start + (int)xs;
+			Vector2 duv = (uve - uvs) / ((int)xe - (int)xs);
+			for (int j = xs; j <= xe; j++)
+			{
+				*curP = tex.GetPixel(curUV);
+				curUV = curUV + duv;
+				curP++;
+			}
+			xs += dx_left;
+			xe += dx_right;
+			uvs = uvs + duv_left;
+			uve = uve + duv_right;
+		}
+	}
+	else
+	{
+		float left;
+		float right;
+		Vector2 tmpUVS;
+		Vector2 tmpUVE;
+		for (int i = iy1; i <= iy3; i++, start += surface->pitch >> 2)
+		{
+			left = xs;
+			right = xe;
+			tmpUVS = uvs;
+			tmpUVE = uve;
+			xs += dx_left;
+			xe += dx_right;
+			uvs = uvs + duv_left;
+			uve = uve + duv_right;
+			if (left < rect.x)
+			{
+				left = rect.x;
+				if (right < rect.x)
+					continue;
+			}
+			if (right > rect.xmax())
+			{
+				right = rect.xmax();
+				if (left > rect.xmax())
+					continue;
+			}
+			Vector2 curUV = tmpUVS;
+			Uint32* curP = start + (int)left;
+			Vector2 duv = (tmpUVE - tmpUVS) / ((int)right - (int)left);
+			for (int j = left; j <= right; j++)
+			{
+				*curP = tex.GetPixel(curUV);
+				curUV = curUV + duv;
+				curP++;
+			}
+		}
+	}
+}
+
+void Draw::DrawBottomTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, float x1, float y1, float x2, float x3, float y3, const Vector2& uv1, const Vector2& uv2, const Vector2& uv3, const Texture& tex)
+{
+	Vector2 newUV2 = uv2;
+	Vector2 newUV3 = uv3;
+	if (x3 < x2)
+	{
+		float tmp = x3;
+		x3 = x2;
+		x2 = tmp;
+		Vector2 tmp2 = newUV3;
+		newUV3 = newUV2;
+		newUV2 = tmp2;
+	}
+
+	float height = y3 - y1;
+	float invHeight = 1 / (y3 - y1);
+	float dx_left = (x2 - x1) * invHeight;
+	float dx_right = (x3 - x1) * invHeight;
+	Vector2 duv_left = (newUV2 - uv1) * invHeight;
+	Vector2 duv_right = (newUV3 - uv1) * invHeight;
+
+	float xs = x1;
+	float xe = x1;
+	Vector2 uvs = uv1;
+	Vector2 uve = uv1;
+
+	int iy1, iy3;
+
+	if (y1 < rect.y)
+	{
+		xs = xs + dx_left * (rect.y - y1);
+		xe = xe + dx_right * (rect.y - y1);
+		uvs = uvs + duv_left * (rect.y - y1);
+		uve = uve + duv_right * (rect.y - y1);
+		y1 = rect.y;
+		iy1 = y1;
+	}
+	else
+	{
+		iy1 = ceilf(y1);
+		xs = xs + dx_left * (iy1 - y1);
+		xe = xe + dx_right * (iy1 - y1);
+		uvs = uvs + duv_left * (iy1 - y1);
+		uve = uve + duv_right * (iy1 - y1);
+	}
+	if (y3 > rect.ymax())
+	{
+		y3 = rect.ymax();
+		iy3 = y3 - 1;
+	}
+	else
+	{
+		iy3 = ceilf(y3) - 1;
+	}
+
+	Uint32* start = GetPixelAddress(surface, 0, iy1);
+
+	if (x1 >= rect.x && x1 <= rect.xmax() && x2 >= rect.x && x2 <= rect.xmax() && x3 >= rect.x && x3 <= rect.xmax())
+	{
+		for (int i = iy1; i <= iy3; i++, start += surface->pitch >> 2)
+		{
+			Vector2 curUV = uvs;
+			Uint32* curP = start + (int)xs;
+			Vector2 duv = (uve - uvs) / ((int)xe - (int)xs);
+			for (int j = xs; j <= xe; j++)
+			{
+				*curP = tex.GetPixel(curUV);
+				curUV = curUV + duv;
+				curP++;
+			}
+			xs += dx_left;
+			xe += dx_right;
+			uvs = uvs + duv_left;
+			uve = uve + duv_right;
+		}
+	}
+	else
+	{
+		float left;
+		float right;
+		Vector2 tmpUVS;
+		Vector2 tmpUVE;
+		for (int i = iy1; i <= iy3; i++, start += surface->pitch >> 2)
+		{
+			left = xs;
+			right = xe;
+			tmpUVS = uvs;
+			tmpUVE = uve;
+			xs += dx_left;
+			xe += dx_right;
+			uvs = uvs + duv_left;
+			uve = uve + duv_right;
+			if (left < rect.x)
+			{
+				left = rect.x;
+				if (right < rect.x)
+					continue;
+			}
+			if (right > rect.xmax())
+			{
+				right = rect.xmax();
+				if (left > rect.xmax())
+					continue;
+			}
+			Vector2 curUV = tmpUVS;
+			Uint32* curP = start + (int)left;
+			Vector2 duv = (tmpUVE - tmpUVS) / ((int)right - (int)left);
+			for (int j = left; j <= right; j++)
+			{
+				*curP = tex.GetPixel(curUV);
+				curUV = curUV + duv;
+				curP++;
+			}
+		}
+	}
+}
+
+void Draw::DrawTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, float x1, float y1, float x2, float y2, float x3, float y3, const Vector2& uv1, const Vector2& uv2, const Vector2& uv3, const Texture& tex)
+{
+	if ((Equal(x1, x2) && Equal(x2, x3)) || (Equal(y1, y2) && Equal(y2, y3)))
+	{
+		return;
+	}
+
+	Vector2 newUV1 = uv1;
+	Vector2 newUV2 = uv2;
+	Vector2 newUV3 = uv3;
+
+	if (y2 < y1)
+	{
+		float tmp1 = x2;
+		float tmp2 = y2;
+		x2 = x1;
+		y2 = y1;
+		x1 = tmp1;
+		y1 = tmp2;
+		Vector2 tmp3 = newUV2;
+		newUV2 = newUV1;
+		newUV1 = tmp3;
+	}
+
+	if (y3 < y1)
+	{
+		float tmp1 = x3;
+		float tmp2 = y3;
+		x3 = x1;
+		y3 = y1;
+		x1 = tmp1;
+		y1 = tmp2;
+		Vector2 tmp3 = newUV3;
+		newUV3 = newUV1;
+		newUV1 = tmp3;
+	}
+
+	if (y3 < y2)
+	{
+		float tmp1 = x3;
+		float tmp2 = y3;
+		x3 = x2;
+		y3 = y2;
+		x2 = tmp1;
+		y2 = tmp2;
+		Vector2 tmp3 = newUV3;
+		newUV3 = newUV2;
+		newUV2 = tmp3;
+	}
+
+	if (y3<rect.y || y1>rect.ymax() || (x1 < rect.x && x2 < rect.x && x3 < rect.x) || (x1 > rect.xmax() && x2 > rect.xmax() && x3 > rect.xmax()))
+	{
+		return;
+	}
+
+	if (Equal(y1, y2))
+	{
+		DrawTopTriangle_Tex_Gouraud(surface, rect, x1, y1, x2, x3, y3, newUV1, newUV2, newUV3, tex);
+	}
+	else if (Equal(y2, y3))
+	{
+		DrawBottomTriangle_Tex_Gouraud(surface, rect, x1, y1, x2, x3, y3, newUV1, newUV2, newUV3, tex);
+	}
+	else
+	{
+		float inv = (y2 - y1) / (y3 - y1);
+		float new_x = x1 + (x3 - x1) * inv;
+		Vector2 newUV4 = newUV1 + (newUV3 - newUV1) * inv;
+		DrawBottomTriangle_Tex_Gouraud(surface, rect, x1, y1, new_x, x2, y2, newUV1, newUV4, newUV2, tex);
+		DrawTopTriangle_Tex_Gouraud(surface, rect, x2, y2, new_x, x3, y3, newUV2, newUV4, newUV3, tex);
+	}
+}
+
 void Draw::DrawClearColor(SDL_Surface* surface, const Color& c)
 {
 	//内存对齐的考虑 有时会不相等

@@ -48,6 +48,12 @@
     <ClCompile Include="mesh.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="vector2.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="tool.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="SDL2.dll" />

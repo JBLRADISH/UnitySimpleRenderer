@@ -46,7 +46,7 @@ int main(int argc, char* args[])
 	vp = cam->projectionMatrix() * cam->worldToCameraMatrix();
 	mvp = vp * m;
 
-	Light directional = Light::CreateDirectionalLight(Quaternion::Euler(Vector3(90.0f, 0.0f, 0.0f)), Color::red, 2.0f);
+	Light directional = Light::CreateDirectionalLight(Quaternion::Euler(Vector3(90.0f, 0.0f, 0.0f)));
 	lights.push_back(directional);
 
 	while (!quit)
@@ -138,22 +138,22 @@ void Render()
 			for (int i = 0; i < go->mesh.vertexCount(); i++)
 			{
 				vertexBuffer[i] = m * go->mesh.vertices[i];
-				Vector3 v1 = vertexBuffer[i];
-				Vector3 n = m * go->mesh.normals[i];
-				Color c = Color::black;
-				for (int j = 0; j < lights.size(); j++)
-				{
-					Light light = lights[j];
-					if (light.type == LightType::Ambient)
-					{
-						c = c + light.GetLightColor(v1, n) * go->material.cAmbient;
-					}
-					else
-					{
-						c = c + go->material.cDiffuse * light.GetLightColor(v1, n);
-					}
-				}
-				colorBuffer[i] = c;
+				//Vector3 v1 = vertexBuffer[i];
+				//Vector3 n = m * go->mesh.normals[i];
+				//Color c = Color::black;
+				//for (int j = 0; j < lights.size(); j++)
+				//{
+				//	Light light = lights[j];
+				//	if (light.type == LightType::Ambient)
+				//	{
+				//		c = c + light.GetLightColor(v1, n) * go->material.cAmbient;
+				//	}
+				//	else
+				//	{
+				//		c = c + go->material.cDiffuse * light.GetLightColor(v1, n);
+				//	}
+				//}
+				//colorBuffer[i] = c;
 			}
 		}
 		for (int i = 0; i < go->mesh.vertexCount(); i++)
@@ -164,9 +164,15 @@ void Render()
 	}
 	for (int i = 0; i < go->mesh.faces.size(); i++)
 	{
-		Vector3 v1 = vertexBuffer[go->mesh.faces[i].vidx1];
-		Vector3 v2 = vertexBuffer[go->mesh.faces[i].vidx2];
-		Vector3 v3 = vertexBuffer[go->mesh.faces[i].vidx3];
+		int idx1 = go->mesh.faces[i].vidx1;
+		int idx2 = go->mesh.faces[i].vidx2;
+		int idx3 = go->mesh.faces[i].vidx3;
+		int uvidx1 = go->mesh.faces[i].uvidx1;
+		int uvidx2 = go->mesh.faces[i].uvidx2;
+		int uvidx3 = go->mesh.faces[i].uvidx3;
+		Vector3 v1 = vertexBuffer[idx1];
+		Vector3 v2 = vertexBuffer[idx2];
+		Vector3 v3 = vertexBuffer[idx3];
 		if (cam->CullFace_ScreenSpace(v1, v2, v3))
 		{
 			switch (go->material.shadingMode)
@@ -183,7 +189,8 @@ void Render()
 				Draw::DrawTriangle_Flat(render.screenSurface, cam->viewport, v1.x, v1.y, v2.x, v2.y, v3.x, v3.y, colorBuffer[i]);
 				break;
 			case ShadingMode::Gouraud:
-				Draw::DrawTriangle_Gouraud(render.screenSurface, cam->viewport, v1.x, v1.y, v2.x, v2.y, v3.x, v3.y, colorBuffer[go->mesh.faces[i].vidx1], colorBuffer[go->mesh.faces[i].vidx2], colorBuffer[go->mesh.faces[i].vidx3]);
+				//Draw::DrawTriangle_Gouraud(render.screenSurface, cam->viewport, v1.x, v1.y, v2.x, v2.y, v3.x, v3.y, colorBuffer[idx1], colorBuffer[idx2], colorBuffer[idx3]);
+				Draw::DrawTriangle_Tex_Gouraud(render.screenSurface, cam->viewport, v1.x, v1.y, v2.x, v2.y, v3.x, v3.y, go->mesh.uv[uvidx1], go->mesh.uv[uvidx2], go->mesh.uv[uvidx3], go->material.diffuseTex);
 				break;
 			}
 		}

@@ -136,7 +136,9 @@
     <ClCompile Include="matrix4x4.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="quaternion.cpp" />
+    <ClCompile Include="tool.cpp" />
     <ClCompile Include="transform.cpp" />
+    <ClCompile Include="vector2.cpp" />
     <ClCompile Include="vector3.cpp" />
   </ItemGroup>
   <ItemGroup>
