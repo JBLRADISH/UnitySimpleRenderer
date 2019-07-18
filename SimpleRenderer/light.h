@@ -34,6 +34,8 @@ public:
 
 	Vector3 GetLightDir();
 
-	Color GetLightColor(const Vector3& p, const Vector3& n);
+	Color GetLightColor();
+
+	float GetLightAtten(const Vector3& p);
 
 };

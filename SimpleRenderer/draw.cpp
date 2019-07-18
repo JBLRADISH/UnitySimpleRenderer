@@ -735,7 +735,7 @@ void Draw::DrawTriangle_Gouraud(SDL_Surface* surface, Rect& rect, float x1, floa
 	}
 }
 
-void Draw::DrawTopTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, float x1, float y1, float x2, float x3, float y3, const Vector2& uv1, const Vector2& uv2, const Vector2& uv3, const Texture& tex)
+void Draw::DrawTopTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, float x1, float y1, float x2, float x3, float y3, const Vector2& uv1, const Vector2& uv2, const Vector2& uv3, const Material& mat)
 {
 	Vector2 newUV1 = uv1;
 	Vector2 newUV2 = uv2;
@@ -801,7 +801,7 @@ void Draw::DrawTopTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, float x
 			Vector2 duv = (uve - uvs) / ((int)xe - (int)xs);
 			for (int j = xs; j <= xe; j++)
 			{
-				*curP = tex.GetPixel(curUV);
+				*curP = mat.GetDiffusePixel(curUV);
 				curUV = curUV + duv;
 				curP++;
 			}
@@ -844,7 +844,7 @@ void Draw::DrawTopTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, float x
 			Vector2 duv = (tmpUVE - tmpUVS) / ((int)right - (int)left);
 			for (int j = left; j <= right; j++)
 			{
-				*curP = tex.GetPixel(curUV);
+				*curP = mat.GetDiffusePixel(curUV);
 				curUV = curUV + duv;
 				curP++;
 			}
@@ -852,7 +852,7 @@ void Draw::DrawTopTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, float x
 	}
 }
 
-void Draw::DrawBottomTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, float x1, float y1, float x2, float x3, float y3, const Vector2& uv1, const Vector2& uv2, const Vector2& uv3, const Texture& tex)
+void Draw::DrawBottomTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, float x1, float y1, float x2, float x3, float y3, const Vector2& uv1, const Vector2& uv2, const Vector2& uv3, const Material& mat)
 {
 	Vector2 newUV2 = uv2;
 	Vector2 newUV3 = uv3;
@@ -918,7 +918,7 @@ void Draw::DrawBottomTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, floa
 			Vector2 duv = (uve - uvs) / ((int)xe - (int)xs);
 			for (int j = xs; j <= xe; j++)
 			{
-				*curP = tex.GetPixel(curUV);
+				*curP = mat.GetDiffusePixel(curUV);
 				curUV = curUV + duv;
 				curP++;
 			}
@@ -961,7 +961,7 @@ void Draw::DrawBottomTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, floa
 			Vector2 duv = (tmpUVE - tmpUVS) / ((int)right - (int)left);
 			for (int j = left; j <= right; j++)
 			{
-				*curP = tex.GetPixel(curUV);
+				*curP = mat.GetDiffusePixel(curUV);
 				curUV = curUV + duv;
 				curP++;
 			}
@@ -969,7 +969,7 @@ void Draw::DrawBottomTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, floa
 	}
 }
 
-void Draw::DrawTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, float x1, float y1, float x2, float y2, float x3, float y3, const Vector2& uv1, const Vector2& uv2, const Vector2& uv3, const Texture& tex)
+void Draw::DrawTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, float x1, float y1, float x2, float y2, float x3, float y3, const Vector2& uv1, const Vector2& uv2, const Vector2& uv3, const Material& mat)
 {
 	if ((Equal(x1, x2) && Equal(x2, x3)) || (Equal(y1, y2) && Equal(y2, y3)))
 	{
@@ -1026,19 +1026,19 @@ void Draw::DrawTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, float x1, 
 
 	if (Equal(y1, y2))
 	{
-		DrawTopTriangle_Tex_Gouraud(surface, rect, x1, y1, x2, x3, y3, newUV1, newUV2, newUV3, tex);
+		DrawTopTriangle_Tex_Gouraud(surface, rect, x1, y1, x2, x3, y3, newUV1, newUV2, newUV3, mat);
 	}
 	else if (Equal(y2, y3))
 	{
-		DrawBottomTriangle_Tex_Gouraud(surface, rect, x1, y1, x2, x3, y3, newUV1, newUV2, newUV3, tex);
+		DrawBottomTriangle_Tex_Gouraud(surface, rect, x1, y1, x2, x3, y3, newUV1, newUV2, newUV3, mat);
 	}
 	else
 	{
 		float inv = (y2 - y1) / (y3 - y1);
 		float new_x = x1 + (x3 - x1) * inv;
 		Vector2 newUV4 = newUV1 + (newUV3 - newUV1) * inv;
-		DrawBottomTriangle_Tex_Gouraud(surface, rect, x1, y1, new_x, x2, y2, newUV1, newUV4, newUV2, tex);
-		DrawTopTriangle_Tex_Gouraud(surface, rect, x2, y2, new_x, x3, y3, newUV2, newUV4, newUV3, tex);
+		DrawBottomTriangle_Tex_Gouraud(surface, rect, x1, y1, new_x, x2, y2, newUV1, newUV4, newUV2, mat);
+		DrawTopTriangle_Tex_Gouraud(surface, rect, x2, y2, new_x, x3, y3, newUV2, newUV4, newUV3, mat);
 	}
 }
 

@@ -59,76 +59,58 @@ Vector3 Light::GetLightDir()
 	return Vector3(num8 + num11, num9 - num10, (float)(1.0 - ((double)num4 + (double)num5)));
 }
 
-Color Light::GetLightColor(const Vector3& p, const Vector3& n)
+Color Light::GetLightColor()
+{
+	return color * intensity;
+}
+
+float Light::GetLightAtten(const Vector3& p)
 {
 	switch (type)
 	{
 	case Ambient:
-		return color * intensity;
-		break;
 	case Directional:
-	{
-		Vector3 forward = GetLightDir();
-		float costheta = Vector3::Dot(n, forward * (-1.0f));
-		if (costheta <= 0.0f)
-		{
-			return Color::black;
-		}
-		costheta /= Vector3::Magnitude(n);
-		return color * intensity * costheta;
-	}
-	break;
+		return 1.0f;
+		break;
 	case Point:
 	{
 		Vector3 d = transform.position - p;
-		float costheta = Vector3::Dot(n, d);
-		if (costheta <= 0.0f)
-		{
-			return Color::black;
-		}
 		float dist2 = d.SqrMagnitude();
 		float range2 = range * range;
 		if (dist2 >= range2)
 		{
-			return Color::black;
+			return 0.0f;
 		}
-		Color c = color * intensity * (1.0f / (dist2 + 0.01f));
+		float atten = 1.0f / (dist2 + 0.01f);
 		float ratio = dist2 / range2;
 		ratio = ratio * ratio;
 		float win = 1.0f - ratio;
 		win = win * win;
-		return c * win;
+		return atten * win;
 	}
 	break;
 	case Spot:
 	{
 		Vector3 forward = GetLightDir();
-		float costheta = Vector3::Dot(n, forward * (-1.0f));
-		if (costheta <= 0.0f)
-		{
-			return Color::black;
-		}
 		Vector3 d = p - transform.position;
 		float costhetas = Vector3::Dot(forward, d) / Vector3::Magnitude(d);
 		float costhetau = cosf(spotOuterAngle);
 		if (costhetas <= costhetau)
 		{
-			return Color::black;
+			return 0.0f;
 		}
 		float dist2 = d.SqrMagnitude();
 		float range2 = range * range;
 		if (dist2 >= range2)
 		{
-			return Color::black;
+			return 0.0f;
 		}
-		Color c = color * intensity;
 		float ratio = dist2 / range2;
 		float dist = 1.0f - ratio;
 		dist = dist * dist;
-		c = c * dist;
 		float t = fmin(1.0f, (costhetas - costhetau) / (cosf(spotInnerAngle) - costhetau));
 		float dir = SmoothStep(t);
-		return c * dir;
+		return  dist * dir;
 	}
 	break;
 	}

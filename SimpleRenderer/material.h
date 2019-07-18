@@ -3,18 +3,9 @@
 #include "color.h"
 #include "texture.h"
 
-enum ShadingMode
-{
-	Wireframe,//线框模式
-	Constant, //固定着色
-	Flat, //恒定着色
-	Gouraud //逐顶点着色
-};
-
 class Material
 {
 public:
-	ShadingMode shadingMode;
 
 	Color cAmbient;
 	Color cDiffuse;
@@ -29,10 +20,16 @@ public:
 
 	Material()
 	{
-		shadingMode = ShadingMode::Wireframe;
 		cAmbient = Color::black;
 		cDiffuse = Color::white;
 		cSpecular = Color::black;
 		power = 0.0f;
+	}
+
+	Uint32 GetDiffusePixel(Vector2 uv) const
+	{
+		int r, g, b;
+		diffuseTex.GetRGB(uv, r, g, b);
+		return RGB2Uint32(r * cDiffuse.r, g * cDiffuse.g, b * cDiffuse.b);
 	}
 };

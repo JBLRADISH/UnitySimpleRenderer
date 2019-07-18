@@ -24,12 +24,22 @@ public:
 		buffer = 0;
 	}
 
-	Uint32 GetPixel(Vector2 uv) const
+	void GetRGB(Vector2 uv, int& r, int& g, int& b) const
 	{
+		if (width == 0)
+		{
+			r = 255;
+			g = 255;
+			b = 255;
+			return;
+		}
 		int x = uv.x * (width - 1);
+		//竖直方向要取反
 		int y = (1 - uv.y) * (height - 1);
 		int idx = (y * width + x) * 4;
 		//BGRA
-		return RGB2Uint32(buffer[idx + 2], buffer[idx + 1], buffer[idx]);
+		r = buffer[idx + 2];
+		g = buffer[idx + 1];
+		b = buffer[idx];
 	}
 };
