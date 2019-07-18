@@ -735,78 +735,100 @@ void Draw::DrawTriangle_Gouraud(SDL_Surface* surface, Rect& rect, float x1, floa
 	}
 }
 
-void Draw::DrawTopTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, float x1, float y1, float x2, float x3, float y3, const Vector2& uv1, const Vector2& uv2, const Vector2& uv3, const Material& mat)
+void Draw::DrawTopTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, const Vector3& v1, const Vector3& v2, const Vector3& v3, const Vector2& uv1, const Vector2& uv2, const Vector2& uv3, const Material& mat, const ZBuffer& zBuffer)
 {
+	Vector3 newV1 = v1;
+	Vector3 newV2 = v2;
+	Vector3 newV3 = v3;
 	Vector2 newUV1 = uv1;
 	Vector2 newUV2 = uv2;
-	if (x2 < x1)
+	if (newV2.x < newV1.x)
 	{
-		float tmp = x2;
-		x2 = x1;
-		x1 = tmp;
+		Vector3 tmp = newV2;
+		newV2 = newV1;
+		newV1 = tmp;
 		Vector2 tmp2 = newUV2;
 		newUV2 = newUV1;
 		newUV1 = tmp2;
 	}
 
-	float height = y3 - y1;
-	float invHeight = 1 / (y3 - y1);
-	float dx_left = (x3 - x1) * invHeight;
-	float dx_right = (x3 - x2) * invHeight;
+	float invHeight = 1 / (newV3.y - newV1.y);
+	float dx_left = (newV3.x - newV1.x) * invHeight;
+	float dx_right = (newV3.x - newV2.x) * invHeight;
+	float dz_left = (newV3.z - newV1.z) * invHeight;
+	float dz_right = (newV3.z - newV2.z) * invHeight;
 	Vector2 duv_left = (uv3 - newUV1) * invHeight;
 	Vector2 duv_right = (uv3 - newUV2) * invHeight;
 
-	float xs = x1;
-	float xe = x2;
+	float xs = newV1.x;
+	float xe = newV2.x;
+	float zs = newV1.z;
+	float ze = newV2.z;
 	Vector2 uvs = newUV1;
 	Vector2 uve = newUV2;
 
 	int iy1, iy3;
 
-	if (y1 < rect.y)
+	if (newV1.y < rect.y)
 	{
-		xs = xs + dx_left * (rect.y - y1);
-		xe = xe + dx_right * (rect.y - y1);
-		uvs = uvs + duv_left * (rect.y - y1);
-		uve = uve + duv_right * (rect.y - y1);
-		y1 = rect.y;
-		iy1 = y1;
+		float dy = rect.y - newV1.y;
+		xs = xs + dx_left * dy;
+		xe = xe + dx_right * dy;
+		zs = zs + dz_left * dy;
+		ze = ze + dz_right * dy;
+		uvs = uvs + duv_left * dy;
+		uve = uve + duv_right * dy;
+		newV1.y = rect.y;
+		iy1 = newV1.y;
 	}
 	else
 	{
-		iy1 = ceilf(y1);
-		xs = xs + dx_left * (iy1 - y1);
-		xe = xe + dx_right * (iy1 - y1);
-		uvs = uvs + duv_left * (iy1 - y1);
-		uve = uve + duv_right * (iy1 - y1);
+		iy1 = ceilf(newV1.y);
+		float dy = iy1 - newV1.y;
+		xs = xs + dx_left * dy;
+		xe = xe + dx_right * dy;
+		zs = zs + dz_left * dy;
+		ze = ze + dz_right * dy;
+		uvs = uvs + duv_left * dy;
+		uve = uve + duv_right * dy;
 	}
-	if (y3 > rect.ymax())
+	if (newV3.y > rect.ymax())
 	{
-		y3 = rect.ymax();
-		iy3 = y3 - 1;
+		newV3.y = rect.ymax();
+		iy3 = newV3.y - 1;
 	}
 	else
 	{
-		iy3 = ceilf(y3) - 1;
+		iy3 = ceilf(newV3.y) - 1;
 	}
 
 	Uint32* start = GetPixelAddress(surface, 0, iy1);
 
-	if (x1 >= rect.x && x1 <= rect.xmax() && x2 >= rect.x && x2 <= rect.xmax() && x3 >= rect.x && x3 <= rect.xmax())
+	if (newV1.x >= rect.x && newV1.x <= rect.xmax() && newV2.x >= rect.x && newV2.x <= rect.xmax() && newV3.x >= rect.x && newV3.x <= rect.xmax())
 	{
 		for (int i = iy1; i <= iy3; i++, start += surface->pitch >> 2)
 		{
 			Vector2 curUV = uvs;
-			Uint32* curP = start + (int)xs;
-			Vector2 duv = (uve - uvs) / ((int)xe - (int)xs);
+			float curZ = zs;
+			int ixs = (int)xs;
+			float invdx = 1.0f / ((int)xe - ixs);
+			Uint32* curP = start + ixs;
+			Vector2 duv = (uve - uvs) * invdx;
+			float dz = (ze - zs) * invdx;
 			for (int j = xs; j <= xe; j++)
 			{
-				*curP = mat.GetDiffusePixel(curUV);
+				if (zBuffer.DepthTest(j, i, curZ))
+				{
+					*curP = mat.GetDiffusePixel(curUV);
+				}
 				curUV = curUV + duv;
+				curZ += dz;
 				curP++;
 			}
 			xs += dx_left;
 			xe += dx_right;
+			zs += dz_left;
+			ze += dz_right;
 			uvs = uvs + duv_left;
 			uve = uve + duv_right;
 		}
@@ -817,14 +839,20 @@ void Draw::DrawTopTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, float x
 		float right;
 		Vector2 tmpUVS;
 		Vector2 tmpUVE;
+		float tmpZS;
+		float tmpZE;
 		for (int i = iy1; i <= iy3; i++, start += surface->pitch >> 2)
 		{
 			left = xs;
 			right = xe;
 			tmpUVS = uvs;
 			tmpUVE = uve;
+			tmpZS = zs;
+			tmpZE = ze;
 			xs += dx_left;
 			xe += dx_right;
+			zs += dz_left;
+			ze += dz_right;
 			uvs = uvs + duv_left;
 			uve = uve + duv_right;
 			if (left < rect.x)
@@ -840,90 +868,120 @@ void Draw::DrawTopTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, float x
 					continue;
 			}
 			Vector2 curUV = tmpUVS;
-			Uint32* curP = start + (int)left;
-			Vector2 duv = (tmpUVE - tmpUVS) / ((int)right - (int)left);
+			float curZ = tmpZS;
+			int ileft = (int)left;
+			float invdx = 1.0f / ((int)right - ileft);
+			Uint32* curP = start + ileft;
+			Vector2 duv = (tmpUVE - tmpUVS) * invdx;
+			float dz = (tmpZE - tmpZS) * invdx;
 			for (int j = left; j <= right; j++)
 			{
-				*curP = mat.GetDiffusePixel(curUV);
+				if (zBuffer.DepthTest(j, i, curZ))
+				{
+					*curP = mat.GetDiffusePixel(curUV);
+				}
 				curUV = curUV + duv;
+				curZ += dz;
 				curP++;
 			}
 		}
 	}
 }
 
-void Draw::DrawBottomTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, float x1, float y1, float x2, float x3, float y3, const Vector2& uv1, const Vector2& uv2, const Vector2& uv3, const Material& mat)
+void Draw::DrawBottomTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, const Vector3& v1, const Vector3& v2, const Vector3& v3, const Vector2& uv1, const Vector2& uv2, const Vector2& uv3, const Material& mat, const ZBuffer& zBuffer)
 {
+	Vector3 newV1 = v1;
+	Vector3 newV2 = v2;
+	Vector3 newV3 = v3;
 	Vector2 newUV2 = uv2;
 	Vector2 newUV3 = uv3;
-	if (x3 < x2)
+	if (newV3.x < newV2.x)
 	{
-		float tmp = x3;
-		x3 = x2;
-		x2 = tmp;
+		Vector3 tmp = newV3;
+		newV3 = newV2;
+		newV2 = tmp;
 		Vector2 tmp2 = newUV3;
 		newUV3 = newUV2;
 		newUV2 = tmp2;
 	}
 
-	float height = y3 - y1;
-	float invHeight = 1 / (y3 - y1);
-	float dx_left = (x2 - x1) * invHeight;
-	float dx_right = (x3 - x1) * invHeight;
+	float invHeight = 1 / (newV3.y - newV1.y);
+	float dx_left = (newV2.x - newV1.x) * invHeight;
+	float dx_right = (newV3.x - newV1.x) * invHeight;
+	float dz_left = (newV2.z - newV1.z) * invHeight;
+	float dz_right = (newV3.z - newV1.z) * invHeight;
 	Vector2 duv_left = (newUV2 - uv1) * invHeight;
 	Vector2 duv_right = (newUV3 - uv1) * invHeight;
 
-	float xs = x1;
-	float xe = x1;
+	float xs = newV1.x;
+	float xe = newV1.x;
+	float zs = newV1.z;
+	float ze = newV1.z;
 	Vector2 uvs = uv1;
 	Vector2 uve = uv1;
 
 	int iy1, iy3;
 
-	if (y1 < rect.y)
+	if (newV1.y < rect.y)
 	{
-		xs = xs + dx_left * (rect.y - y1);
-		xe = xe + dx_right * (rect.y - y1);
-		uvs = uvs + duv_left * (rect.y - y1);
-		uve = uve + duv_right * (rect.y - y1);
-		y1 = rect.y;
-		iy1 = y1;
+		float dy = rect.y - newV1.y;
+		xs = xs + dx_left * dy;
+		xe = xe + dx_right * dy;
+		zs = zs + dz_left * dy;
+		ze = ze + dz_right * dy;
+		uvs = uvs + duv_left * dy;
+		uve = uve + duv_right * dy;
+		newV1.y = rect.y;
+		iy1 = newV1.y;
 	}
 	else
 	{
-		iy1 = ceilf(y1);
-		xs = xs + dx_left * (iy1 - y1);
-		xe = xe + dx_right * (iy1 - y1);
-		uvs = uvs + duv_left * (iy1 - y1);
-		uve = uve + duv_right * (iy1 - y1);
+		iy1 = ceilf(newV1.y);
+		float dy = iy1 - newV1.y;
+		xs = xs + dx_left * dy;
+		xe = xe + dx_right * dy;
+		zs = zs + dz_left * dy;
+		ze = ze + dz_right * dy;
+		uvs = uvs + duv_left * dy;
+		uve = uve + duv_right * dy;
 	}
-	if (y3 > rect.ymax())
+	if (newV3.y > rect.ymax())
 	{
-		y3 = rect.ymax();
-		iy3 = y3 - 1;
+		newV3.y = rect.ymax();
+		iy3 = newV3.y - 1;
 	}
 	else
 	{
-		iy3 = ceilf(y3) - 1;
+		iy3 = ceilf(newV3.y) - 1;
 	}
 
 	Uint32* start = GetPixelAddress(surface, 0, iy1);
 
-	if (x1 >= rect.x && x1 <= rect.xmax() && x2 >= rect.x && x2 <= rect.xmax() && x3 >= rect.x && x3 <= rect.xmax())
+	if (newV1.x >= rect.x && newV1.x <= rect.xmax() && newV2.x >= rect.x && newV2.x <= rect.xmax() && newV3.x >= rect.x && newV3.x <= rect.xmax())
 	{
 		for (int i = iy1; i <= iy3; i++, start += surface->pitch >> 2)
 		{
 			Vector2 curUV = uvs;
-			Uint32* curP = start + (int)xs;
-			Vector2 duv = (uve - uvs) / ((int)xe - (int)xs);
+			float curZ = zs;
+			int ixs = (int)xs;
+			float invdx = 1.0f / ((int)xe - ixs);
+			Uint32* curP = start + ixs;
+			Vector2 duv = (uve - uvs) * invdx;
+			float dz = (ze - zs) * invdx;
 			for (int j = xs; j <= xe; j++)
 			{
-				*curP = mat.GetDiffusePixel(curUV);
+				if (zBuffer.DepthTest(j, i, curZ))
+				{
+					*curP = mat.GetDiffusePixel(curUV);
+				}
 				curUV = curUV + duv;
+				curZ += dz;
 				curP++;
 			}
 			xs += dx_left;
 			xe += dx_right;
+			zs += dz_left;
+			ze += dz_right;
 			uvs = uvs + duv_left;
 			uve = uve + duv_right;
 		}
@@ -934,14 +992,20 @@ void Draw::DrawBottomTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, floa
 		float right;
 		Vector2 tmpUVS;
 		Vector2 tmpUVE;
+		float tmpZS;
+		float tmpZE;
 		for (int i = iy1; i <= iy3; i++, start += surface->pitch >> 2)
 		{
 			left = xs;
 			right = xe;
 			tmpUVS = uvs;
 			tmpUVE = uve;
+			tmpZS = zs;
+			tmpZE = ze;
 			xs += dx_left;
 			xe += dx_right;
+			zs += dz_left;
+			ze += dz_right;
 			uvs = uvs + duv_left;
 			uve = uve + duv_right;
 			if (left < rect.x)
@@ -957,88 +1021,90 @@ void Draw::DrawBottomTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, floa
 					continue;
 			}
 			Vector2 curUV = tmpUVS;
-			Uint32* curP = start + (int)left;
-			Vector2 duv = (tmpUVE - tmpUVS) / ((int)right - (int)left);
+			float curZ = tmpZS;
+			int ileft = (int)left;
+			float invdx = 1.0f / ((int)right - ileft);
+			Uint32* curP = start + ileft;
+			Vector2 duv = (tmpUVE - tmpUVS) * invdx;
+			float dz = (tmpZE - tmpZS) * invdx;
 			for (int j = left; j <= right; j++)
 			{
-				*curP = mat.GetDiffusePixel(curUV);
+				if (zBuffer.DepthTest(j, i, curZ))
+				{
+					*curP = mat.GetDiffusePixel(curUV);
+				}
 				curUV = curUV + duv;
+				curZ += dz;
 				curP++;
 			}
 		}
 	}
 }
 
-void Draw::DrawTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, float x1, float y1, float x2, float y2, float x3, float y3, const Vector2& uv1, const Vector2& uv2, const Vector2& uv3, const Material& mat)
+void Draw::DrawTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, const Vector3& v1, const Vector3& v2, const Vector3& v3, const Vector2& uv1, const Vector2& uv2, const Vector2& uv3, const Material& mat, const ZBuffer& zBuffer)
 {
-	if ((Equal(x1, x2) && Equal(x2, x3)) || (Equal(y1, y2) && Equal(y2, y3)))
+	if ((Equal(v1.x, v2.x) && Equal(v2.x, v3.x)) || (Equal(v1.y, v2.y) && Equal(v2.y, v3.y)))
 	{
 		return;
 	}
 
+	Vector3 newV1 = v1;
+	Vector3 newV2 = v2;
+	Vector3 newV3 = v3;
 	Vector2 newUV1 = uv1;
 	Vector2 newUV2 = uv2;
 	Vector2 newUV3 = uv3;
 
-	if (y2 < y1)
+	if (newV2.y < newV1.y)
 	{
-		float tmp1 = x2;
-		float tmp2 = y2;
-		x2 = x1;
-		y2 = y1;
-		x1 = tmp1;
-		y1 = tmp2;
-		Vector2 tmp3 = newUV2;
+		Vector3 tmp1 = newV2;
+		newV2 = newV1;
+		newV1 = tmp1;
+		Vector2 tmp2 = newUV2;
 		newUV2 = newUV1;
-		newUV1 = tmp3;
+		newUV1 = tmp2;
 	}
 
-	if (y3 < y1)
+	if (newV3.y < newV1.y)
 	{
-		float tmp1 = x3;
-		float tmp2 = y3;
-		x3 = x1;
-		y3 = y1;
-		x1 = tmp1;
-		y1 = tmp2;
-		Vector2 tmp3 = newUV3;
+		Vector3 tmp1 = newV3;
+		newV3 = newV1;
+		newV1 = tmp1;
+		Vector2 tmp2 = newUV3;
 		newUV3 = newUV1;
-		newUV1 = tmp3;
+		newUV1 = tmp2;
 	}
 
-	if (y3 < y2)
+	if (newV3.y < newV2.y)
 	{
-		float tmp1 = x3;
-		float tmp2 = y3;
-		x3 = x2;
-		y3 = y2;
-		x2 = tmp1;
-		y2 = tmp2;
-		Vector2 tmp3 = newUV3;
+		Vector3 tmp1 = newV3;
+		newV3 = newV2;
+		newV2 = tmp1;
+		Vector2 tmp2 = newUV3;
 		newUV3 = newUV2;
-		newUV2 = tmp3;
+		newUV2 = tmp2;
 	}
 
-	if (y3<rect.y || y1>rect.ymax() || (x1 < rect.x && x2 < rect.x && x3 < rect.x) || (x1 > rect.xmax() && x2 > rect.xmax() && x3 > rect.xmax()))
+	if (newV3.y < rect.y || newV1.y > rect.ymax() || (newV1.x < rect.x && newV2.x < rect.x && newV3.x < rect.x) || (newV1.x > rect.xmax() && newV2.x > rect.xmax() && newV3.x > rect.xmax()))
 	{
 		return;
 	}
 
-	if (Equal(y1, y2))
+	if (Equal(newV1.y, newV2.y))
 	{
-		DrawTopTriangle_Tex_Gouraud(surface, rect, x1, y1, x2, x3, y3, newUV1, newUV2, newUV3, mat);
+		DrawTopTriangle_Tex_Gouraud(surface, rect, newV1, newV2, newV3, newUV1, newUV2, newUV3, mat, zBuffer);
 	}
-	else if (Equal(y2, y3))
+	else if (Equal(newV2.y, newV3.y))
 	{
-		DrawBottomTriangle_Tex_Gouraud(surface, rect, x1, y1, x2, x3, y3, newUV1, newUV2, newUV3, mat);
+		DrawBottomTriangle_Tex_Gouraud(surface, rect, newV1, newV2, newV3, newUV1, newUV2, newUV3, mat, zBuffer);
 	}
 	else
 	{
-		float inv = (y2 - y1) / (y3 - y1);
-		float new_x = x1 + (x3 - x1) * inv;
+		float inv = (newV2.y - newV1.y) / (newV3.y - newV1.y);
+		Vector3 newV4(newV1.x + (newV3.x - newV1.x) * inv, newV2.y, newV1.z + (newV3.z - newV1.z) * inv);
 		Vector2 newUV4 = newUV1 + (newUV3 - newUV1) * inv;
-		DrawBottomTriangle_Tex_Gouraud(surface, rect, x1, y1, new_x, x2, y2, newUV1, newUV4, newUV2, mat);
-		DrawTopTriangle_Tex_Gouraud(surface, rect, x2, y2, new_x, x3, y3, newUV2, newUV4, newUV3, mat);
+		DrawBottomTriangle_Tex_Gouraud(surface, rect, newV1, newV4, newV2, newUV1, newUV4, newUV2, mat, zBuffer);
+		DrawTopTriangle_Tex_Gouraud(surface, rect, newV2, newV4, newV3, newUV2, newUV4, newUV3, mat, zBuffer);
 	}
 }
 

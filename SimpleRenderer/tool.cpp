@@ -21,6 +21,17 @@ void ASM_MEMSET_DWORD(void* dest, Uint32 data, int count)
 	}
 }
 
+void ASM_MEMSET_DWORD(void* dest, float data, int count)
+{
+	_asm
+	{
+		mov edi, dest;
+		mov ecx, count;
+		mov eax, data;
+		rep stosd;
+	}
+}
+
 Uint32* GetPixelAddress(SDL_Surface* surface, int x, int y)
 {
 	Uint32* pixels = (Uint32*)surface->pixels;

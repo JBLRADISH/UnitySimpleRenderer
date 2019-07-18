@@ -5,6 +5,7 @@
 #include "gameobject.h"
 #include "camera.h"
 #include "light.h"
+#include "zbuffer.h"
 
 enum ShadingMode
 {
@@ -26,6 +27,7 @@ GameObject* go;
 Camera* cam;
 vector<Vector3> vertexBuffer;
 vector<Color> colorBuffer;
+ZBuffer zBuffer;
 Matrix4x4 m;
 Matrix4x4 vp;
 Matrix4x4 mvp;
@@ -50,6 +52,8 @@ int main(int argc, char* args[])
 	cam = &Camera(60.0f, 0.3f, 1000.0f, Rect(0, 0, 800, 600));
 	cam->transform.position = Vector3(236.6051f, 119.8119f, -1.424029f);
 	cam->transform.rotation = Quaternion::Euler(Vector3(6.532001f, -90.06901f, 0.0f));
+
+	zBuffer.CreateZBuffer(cam->viewport);
 
 	m = go->transform.localToWorldMatrix();
 	vp = cam->projectionMatrix() * cam->worldToCameraMatrix();
@@ -116,6 +120,7 @@ void Input()
 void Render()
 {
 	Draw::DrawClearColor(render.screenSurface, Color::white);
+	zBuffer.ClearZBuffer(1.0f);
 	if (shadingMode == ShadingMode::Wireframe || shadingMode == ShadingMode::Constant || shadingMode == ShadingMode::Map)
 	{
 		for (int i = 0; i < go->mesh.vertexCount(); i++)
@@ -231,7 +236,7 @@ void Render()
 				int uvidx1 = go->mesh.faces[i].uvidx1;
 				int uvidx2 = go->mesh.faces[i].uvidx2;
 				int uvidx3 = go->mesh.faces[i].uvidx3;
-				Draw::DrawTriangle_Tex_Gouraud(render.screenSurface, cam->viewport, v1.x, v1.y, v2.x, v2.y, v3.x, v3.y, go->mesh.uv[uvidx1], go->mesh.uv[uvidx2], go->mesh.uv[uvidx3], go->material);
+				Draw::DrawTriangle_Tex_Gouraud(render.screenSurface, cam->viewport, v1, v2, v3, go->mesh.uv[uvidx1], go->mesh.uv[uvidx2], go->mesh.uv[uvidx3], go->material, zBuffer);
 				break;
 			}
 		}

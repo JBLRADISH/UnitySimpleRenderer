@@ -10,4 +10,6 @@ Uint32 RGB2Uint32(int r, int g, int b);
 
 void ASM_MEMSET_DWORD(void* dest, Uint32 data, int count);
 
+void ASM_MEMSET_DWORD(void* dest, float data, int count);
+
 Uint32* GetPixelAddress(SDL_Surface* surface, int x, int y);

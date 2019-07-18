@@ -35,9 +35,11 @@ Vector3 Camera::screenPoint(const Vector3& v)
 	float invW = 1 / v.w;
 	float ndcX = v.x * invW;
 	float ndcY = v.y * invW;
+	float ndcZ = v.z * invW;
 	Vector3 screenPos;
 	screenPos.x = viewport.x + (ndcX + 1.0f) * 0.5f * (viewport.xmax());
 	screenPos.y = viewport.y + (1.0f - (ndcY + 1.0f) * 0.5f) * (viewport.ymax());
+	screenPos.z = ndcZ;
 	return screenPos;
 }
 

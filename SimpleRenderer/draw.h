@@ -4,7 +4,9 @@
 #include "SDL.h"
 #include "rect.h"
 #include "vector2.h"
+#include "vector3.h"
 #include "material.h"
+#include "zbuffer.h"
 
 class Draw {
 public:
@@ -21,9 +23,9 @@ public:
 	static void DrawTopTriangle_Gouraud(SDL_Surface* surface, Rect& rect, float x1, float y1, float x2, float x3, float y3, const Color& c1, const Color& c2, const Color& c3);
 	static void DrawBottomTriangle_Gouraud(SDL_Surface* surface, Rect& rect, float x1, float y1, float x2, float x3, float y3, const Color& c1, const Color& c2, const Color& c3);
 	static void DrawTriangle_Gouraud(SDL_Surface* surface, Rect& rect, float x1, float y1, float x2, float y2, float x3, float y3, const Color& c1, const Color& c2, const Color& c3);
-	static void DrawTopTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, float x1, float y1, float x2, float x3, float y3, const Vector2& uv1, const Vector2& uv2, const Vector2& uv3, const Material& mat);
-	static void DrawBottomTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, float x1, float y1, float x2, float x3, float y3, const Vector2& uv1, const Vector2& uv2, const Vector2& uv3, const Material& mat);
-	static void DrawTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, float x1, float y1, float x2, float y2, float x3, float y3, const Vector2& uv1, const Vector2& uv2, const Vector2& uv3, const Material& mat);
+	static void DrawTopTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, const Vector3& v1, const Vector3& v2, const Vector3& v3, const Vector2& uv1, const Vector2& uv2, const Vector2& uv3, const Material& mat, const ZBuffer& zBuffer);
+	static void DrawBottomTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, const Vector3& v1, const Vector3& v2, const Vector3& v3, const Vector2& uv1, const Vector2& uv2, const Vector2& uv3, const Material& mat, const ZBuffer& zBuffer);
+	static void DrawTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, const Vector3& v1, const Vector3& v2, const Vector3& v3, const Vector2& uv1, const Vector2& uv2, const Vector2& uv3, const Material& mat, const ZBuffer& zBuffer);
 	static void DrawClearColor(SDL_Surface* surface, const Color& c);
 
 private:
