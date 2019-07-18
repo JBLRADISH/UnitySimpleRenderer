@@ -28,8 +28,8 @@ public:
 
 	Uint32 GetDiffusePixel(Vector2 uv) const
 	{
-		int r, g, b;
-		diffuseTex.GetRGB(uv, r, g, b);
-		return RGB2Uint32(r * cDiffuse.r, g * cDiffuse.g, b * cDiffuse.b);
+		Color c;
+		diffuseTex.GetRGB(uv, c);
+		return RGB2Uint32(c.r * cDiffuse.r, c.g * cDiffuse.g, c.b * cDiffuse.b);
 	}
 };

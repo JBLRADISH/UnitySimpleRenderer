@@ -28,4 +28,6 @@ public:
 	Color operator*(float k) const;
 	Color operator*(const Color& c) const;
 	Color operator/(float k) const;
+
+	static Color Lerp(const Color& c1, const Color& c2, float t);
 };

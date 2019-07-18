@@ -12,7 +12,7 @@ enum ShadingMode
 	Constant, //固定着色
 	Flat, //恒定着色
 	Gouraud, //逐顶点着色
-	Gouraud_UV
+	Map
 };
 
 void Input();
@@ -39,7 +39,7 @@ int main(int argc, char* args[])
 		return 0;
 	}
 
-	shadingMode = ShadingMode::Gouraud_UV;
+	shadingMode = ShadingMode::Map;
 
 	GameObject tmp = Obj::Load("lenin.obj");
 	go = &tmp;
@@ -116,7 +116,7 @@ void Input()
 void Render()
 {
 	Draw::DrawClearColor(render.screenSurface, Color::white);
-	if (shadingMode == ShadingMode::Wireframe || shadingMode == ShadingMode::Constant || shadingMode == ShadingMode::Gouraud_UV)
+	if (shadingMode == ShadingMode::Wireframe || shadingMode == ShadingMode::Constant || shadingMode == ShadingMode::Map)
 	{
 		for (int i = 0; i < go->mesh.vertexCount(); i++)
 		{
@@ -227,7 +227,7 @@ void Render()
 			case ShadingMode::Gouraud:
 				Draw::DrawTriangle_Gouraud(render.screenSurface, cam->viewport, v1.x, v1.y, v2.x, v2.y, v3.x, v3.y, colorBuffer[idx1], colorBuffer[idx2], colorBuffer[idx3]);
 				break;
-			case ShadingMode::Gouraud_UV:
+			case ShadingMode::Map:
 				int uvidx1 = go->mesh.faces[i].uvidx1;
 				int uvidx2 = go->mesh.faces[i].uvidx2;
 				int uvidx3 = go->mesh.faces[i].uvidx3;
