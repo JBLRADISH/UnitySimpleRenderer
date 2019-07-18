@@ -31,8 +31,3 @@ float SmoothStep(float t)
 {
 	return (float)(-2.0 * (double)t * (double)t * (double)t + 3.0 * (double)t * (double)t);
 }
-
-int Round(float value)
-{
-	return (int)(value + 0.5f);
-}

@@ -752,7 +752,7 @@ void Draw::DrawTopTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, const V
 		newUV1 = tmp2;
 	}
 
-	float invHeight = 1 / (newV3.y - newV1.y);
+	float invHeight = 1.0f / (newV3.y - newV1.y);
 	float dx_left = (newV3.x - newV1.x) * invHeight;
 	float dx_right = (newV3.x - newV2.x) * invHeight;
 	float dz_left = (newV3.z - newV1.z) * invHeight;
@@ -779,11 +779,11 @@ void Draw::DrawTopTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, const V
 		uvs = uvs + duv_left * dy;
 		uve = uve + duv_right * dy;
 		newV1.y = rect.y;
-		iy1 = newV1.y;
+		iy1 = Floor(newV1.y);
 	}
 	else
 	{
-		iy1 = ceilf(newV1.y);
+		iy1 = Ceil(newV1.y);
 		float dy = iy1 - newV1.y;
 		xs = xs + dx_left * dy;
 		xe = xe + dx_right * dy;
@@ -795,11 +795,11 @@ void Draw::DrawTopTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, const V
 	if (newV3.y > rect.ymax())
 	{
 		newV3.y = rect.ymax();
-		iy3 = newV3.y - 1;
+		iy3 = Floor(newV3.y - 1.0f);
 	}
 	else
 	{
-		iy3 = ceilf(newV3.y) - 1;
+		iy3 = Ceil(newV3.y) - 1;
 	}
 
 	Uint32* start = GetPixelAddress(surface, 0, iy1);
@@ -810,8 +810,8 @@ void Draw::DrawTopTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, const V
 		{
 			Vector2 curUV = uvs;
 			float curZ = zs;
-			int ixs = (int)xs;
-			float invdx = 1.0f / ((int)xe - ixs);
+			int ixs = Floor(xs);
+			float invdx = 1.0f / (Floor(xe) - ixs);
 			Uint32* curP = start + ixs;
 			Vector2 duv = (uve - uvs) * invdx;
 			float dz = (ze - zs) * invdx;
@@ -869,8 +869,8 @@ void Draw::DrawTopTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, const V
 			}
 			Vector2 curUV = tmpUVS;
 			float curZ = tmpZS;
-			int ileft = (int)left;
-			float invdx = 1.0f / ((int)right - ileft);
+			int ileft = Floor(left);
+			float invdx = 1.0f / (Floor(right) - ileft);
 			Uint32* curP = start + ileft;
 			Vector2 duv = (tmpUVE - tmpUVS) * invdx;
 			float dz = (tmpZE - tmpZS) * invdx;
@@ -905,7 +905,7 @@ void Draw::DrawBottomTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, cons
 		newUV2 = tmp2;
 	}
 
-	float invHeight = 1 / (newV3.y - newV1.y);
+	float invHeight = 1.0f / (newV3.y - newV1.y);
 	float dx_left = (newV2.x - newV1.x) * invHeight;
 	float dx_right = (newV3.x - newV1.x) * invHeight;
 	float dz_left = (newV2.z - newV1.z) * invHeight;
@@ -932,11 +932,11 @@ void Draw::DrawBottomTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, cons
 		uvs = uvs + duv_left * dy;
 		uve = uve + duv_right * dy;
 		newV1.y = rect.y;
-		iy1 = newV1.y;
+		iy1 = Floor(newV1.y);
 	}
 	else
 	{
-		iy1 = ceilf(newV1.y);
+		iy1 = Ceil(newV1.y);
 		float dy = iy1 - newV1.y;
 		xs = xs + dx_left * dy;
 		xe = xe + dx_right * dy;
@@ -948,11 +948,11 @@ void Draw::DrawBottomTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, cons
 	if (newV3.y > rect.ymax())
 	{
 		newV3.y = rect.ymax();
-		iy3 = newV3.y - 1;
+		iy3 = Floor(newV3.y - 1.0f);
 	}
 	else
 	{
-		iy3 = ceilf(newV3.y) - 1;
+		iy3 = Ceil(newV3.y) - 1;
 	}
 
 	Uint32* start = GetPixelAddress(surface, 0, iy1);
@@ -963,8 +963,8 @@ void Draw::DrawBottomTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, cons
 		{
 			Vector2 curUV = uvs;
 			float curZ = zs;
-			int ixs = (int)xs;
-			float invdx = 1.0f / ((int)xe - ixs);
+			int ixs = Floor(xs);
+			float invdx = 1.0f / (Floor(xe) - ixs);
 			Uint32* curP = start + ixs;
 			Vector2 duv = (uve - uvs) * invdx;
 			float dz = (ze - zs) * invdx;
@@ -1022,8 +1022,8 @@ void Draw::DrawBottomTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, cons
 			}
 			Vector2 curUV = tmpUVS;
 			float curZ = tmpZS;
-			int ileft = (int)left;
-			float invdx = 1.0f / ((int)right - ileft);
+			int ileft = Floor(left);
+			float invdx = 1.0f / (Floor(right) - ileft);
 			Uint32* curP = start + ileft;
 			Vector2 duv = (tmpUVE - tmpUVS) * invdx;
 			float dz = (tmpZE - tmpZS) * invdx;
