@@ -27,7 +27,7 @@ public:
 	bool DepthTest(int i, int j, float z) const
 	{
 		float tmp = buffer[j * width + i];
-		if (z <= tmp)
+		if (z >= tmp)
 		{
 			buffer[j * width + i] = z;
 			return true;

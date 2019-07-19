@@ -755,17 +755,20 @@ void Draw::DrawTopTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, const V
 	float invHeight = 1.0f / (newV3.y - newV1.y);
 	float dx_left = (newV3.x - newV1.x) * invHeight;
 	float dx_right = (newV3.x - newV2.x) * invHeight;
-	float dz_left = (newV3.z - newV1.z) * invHeight;
-	float dz_right = (newV3.z - newV2.z) * invHeight;
-	Vector2 duv_left = (uv3 - newUV1) * invHeight;
-	Vector2 duv_right = (uv3 - newUV2) * invHeight;
+	float invv1z = 1.0f / newV1.z;
+	float invv2z = 1.0f / newV2.z;
+	float invv3z = 1.0f / newV3.z;
+	float dz_left = (invv3z - invv1z) * invHeight;
+	float dz_right = (invv3z - invv2z) * invHeight;
+	Vector2 duv_left = (uv3 * invv3z - newUV1 * invv1z) * invHeight;
+	Vector2 duv_right = (uv3 * invv3z - newUV2 * invv2z) * invHeight;
 
 	float xs = newV1.x;
 	float xe = newV2.x;
-	float zs = newV1.z;
-	float ze = newV2.z;
-	Vector2 uvs = newUV1;
-	Vector2 uve = newUV2;
+	float zs = invv1z;
+	float ze = invv2z;
+	Vector2 uvs = newUV1 * invv1z;
+	Vector2 uve = newUV2 * invv2z;
 
 	int iy1, iy3;
 
@@ -819,7 +822,7 @@ void Draw::DrawTopTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, const V
 			{
 				if (zBuffer.DepthTest(j, i, curZ))
 				{
-					*curP = mat.GetDiffusePixel(curUV);
+					*curP = mat.GetDiffusePixel(curUV / curZ);
 				}
 				curUV = curUV + duv;
 				curZ += dz;
@@ -878,7 +881,7 @@ void Draw::DrawTopTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, const V
 			{
 				if (zBuffer.DepthTest(j, i, curZ))
 				{
-					*curP = mat.GetDiffusePixel(curUV);
+					*curP = mat.GetDiffusePixel(curUV / curZ);
 				}
 				curUV = curUV + duv;
 				curZ += dz;
@@ -908,17 +911,20 @@ void Draw::DrawBottomTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, cons
 	float invHeight = 1.0f / (newV3.y - newV1.y);
 	float dx_left = (newV2.x - newV1.x) * invHeight;
 	float dx_right = (newV3.x - newV1.x) * invHeight;
-	float dz_left = (newV2.z - newV1.z) * invHeight;
-	float dz_right = (newV3.z - newV1.z) * invHeight;
-	Vector2 duv_left = (newUV2 - uv1) * invHeight;
-	Vector2 duv_right = (newUV3 - uv1) * invHeight;
+	float invv1z = 1.0f / newV1.z;
+	float invv2z = 1.0f / newV2.z;
+	float invv3z = 1.0f / newV3.z;
+	float dz_left = (invv2z - invv1z) * invHeight;
+	float dz_right = (invv3z - invv1z) * invHeight;
+	Vector2 duv_left = (newUV2 * invv2z - uv1 * invv1z) * invHeight;
+	Vector2 duv_right = (newUV3 * invv3z - uv1 * invv1z) * invHeight;
 
 	float xs = newV1.x;
 	float xe = newV1.x;
-	float zs = newV1.z;
-	float ze = newV1.z;
-	Vector2 uvs = uv1;
-	Vector2 uve = uv1;
+	float zs = invv1z;
+	float ze = invv1z;
+	Vector2 uvs = uv1 * invv1z;
+	Vector2 uve = uv1 * invv1z;
 
 	int iy1, iy3;
 
@@ -972,7 +978,7 @@ void Draw::DrawBottomTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, cons
 			{
 				if (zBuffer.DepthTest(j, i, curZ))
 				{
-					*curP = mat.GetDiffusePixel(curUV);
+					*curP = mat.GetDiffusePixel(curUV / curZ);
 				}
 				curUV = curUV + duv;
 				curZ += dz;
@@ -1031,7 +1037,7 @@ void Draw::DrawBottomTriangle_Tex_Gouraud(SDL_Surface* surface, Rect& rect, cons
 			{
 				if (zBuffer.DepthTest(j, i, curZ))
 				{
-					*curP = mat.GetDiffusePixel(curUV);
+					*curP = mat.GetDiffusePixel(curUV / curZ);
 				}
 				curUV = curUV + duv;
 				curZ += dz;
