@@ -40,19 +40,21 @@ public:
 			}
 			res.width = info.biWidth;
 			res.height = info.biHeight;
-			res.buffer = (BYTE*)calloc(sizeof(BYTE), info.biSizeImage);
+			res.SetMipMapLevel(log2f(fminf(res.width, res.height)));
+			res.buffer[0] = (BYTE*)calloc(sizeof(BYTE), info.biSizeImage);
 			fseek(fp, -(int)(info.biSizeImage), SEEK_END);
-			fread(res.buffer, sizeof(BYTE), info.biSizeImage, fp);
+			fread(res.buffer[0], sizeof(BYTE), info.biSizeImage, fp);
 			fclose(fp);
 			//flip bmp
 			int bytes_per_line = sizeof(BYTE) * info.biBitCount / 8 * info.biWidth;
 			BYTE* tmp = (BYTE*)malloc(info.biSizeImage);
-			memcpy(tmp, res.buffer, info.biSizeImage);
+			memcpy(tmp, res.buffer[0], info.biSizeImage);
 			for (int i = 0; i < info.biHeight; i++)
 			{
-				memcpy(&res.buffer[((info.biHeight - 1) - i) * bytes_per_line], &tmp[i * bytes_per_line], bytes_per_line);
+				memcpy(&res.buffer[0][((info.biHeight - 1) - i) * bytes_per_line], &tmp[i * bytes_per_line], bytes_per_line);
 			}
 			free(tmp);
+			res.GenerateMipMap();
 			return res;
 		}
 		else
