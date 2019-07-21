@@ -14,7 +14,7 @@ Light Light::CreateDirectionalLight(const Quaternion& q, const Color& c, float i
 {
 	Light res;
 	res.transform.rotation = q;
-	res.type = LightType::Directional;
+	res.type = LightType::DirectionalLight;
 	res.color = c;
 	res.intensity = intensity;
 	return res;
@@ -24,7 +24,7 @@ Light Light::CreatePointLight(const Vector3& p, const Color& c, float intensity,
 {
 	Light res;
 	res.transform.position = p;
-	res.type = LightType::Point;
+	res.type = LightType::PointLight;
 	res.color = c;
 	res.intensity = intensity;
 	res.range = range;
@@ -35,7 +35,7 @@ Light Light::CreateSpotLight(const Transform& t, const Color& c, float intensity
 {
 	Light res;
 	res.transform = t;
-	res.type = LightType::Spot;
+	res.type = LightType::SpotLight;
 	res.color = c;
 	res.intensity = intensity;
 	res.range = range;
@@ -69,10 +69,10 @@ float Light::GetLightAtten(const Vector3& p)
 	switch (type)
 	{
 	case Ambient:
-	case Directional:
+	case DirectionalLight:
 		return 1.0f;
 		break;
-	case Point:
+	case PointLight:
 	{
 		Vector3 d = transform.position - p;
 		float dist2 = d.SqrMagnitude();
@@ -89,7 +89,7 @@ float Light::GetLightAtten(const Vector3& p)
 		return atten * win;
 	}
 	break;
-	case Spot:
+	case SpotLight:
 	{
 		Vector3 forward = GetLightDir();
 		Vector3 d = p - transform.position;

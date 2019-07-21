@@ -168,26 +168,7 @@ Material Obj::LoadMaterial(const string& filename)
 				return res;
 			}
 		}
-		//¶ÁÂş·´ÉäÌùÍ¼
-		else if (tag == "map_Kd")
-		{
-			string diffuseTex = str.substr(idx + 1);
-			res.diffuseTex = Bmp::Load(diffuseTex);
-		}
-		//¶Á¸ß¹â·´ÉäÌùÍ¼
-		else if (tag == "map_Ks")
-		{
-			string specularTex = str.substr(idx + 1);
-			res.specularTex = Bmp::Load(specularTex);
-		}
-		//¶Á·¨ÏßÌùÍ¼
-		else if (tag == "map_bump")
-		{
-			string normalTex = str.substr(idx + 1);
-			res.normalTex = Bmp::Load(normalTex);
-		}
 		line++;
 	}
-
 	return res;
 }

@@ -1,58 +1,71 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="源文件">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="math">
+      <UniqueIdentifier>{48293f0e-1242-4b4e-95b0-91aa1b707243}</UniqueIdentifier>
     </Filter>
-    <Filter Include="头文件">
+    <Filter Include="texture">
+      <UniqueIdentifier>{b4622cbf-3b77-4cb6-aade-64231e52f4bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="model">
+      <UniqueIdentifier>{4f8dc7a8-861c-4e29-927a-3a9bc59200ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="camera">
+      <UniqueIdentifier>{b73998af-7f9a-4e10-8b8d-9ddf0662b01c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader">
+      <UniqueIdentifier>{6d3378cf-6944-49db-b7fd-bf00652eb045}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="allocator">
+      <UniqueIdentifier>{d20d3a5e-6eed-4672-9937-8e245caf72b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="light">
+      <UniqueIdentifier>{67914ecc-f9ac-4fed-a3f1-d9dcd0808848}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="资源文件">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="draw.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="vector3.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="matrix4x4.cpp">
-      <Filter>源文件</Filter>
+    <ClCompile Include="mathf.cpp">
+      <Filter>math</Filter>
     </ClCompile>
     <ClCompile Include="quaternion.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="mathf.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="camera.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="transform.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="color.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="light.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="mesh.cpp">
-      <Filter>源文件</Filter>
+      <Filter>math</Filter>
     </ClCompile>
     <ClCompile Include="vector2.cpp">
-      <Filter>源文件</Filter>
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="vector3.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="matrix4x4.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>camera</Filter>
+    </ClCompile>
+    <ClCompile Include="color.cpp">
+      <Filter>shader</Filter>
+    </ClCompile>
+    <ClCompile Include="light.cpp">
+      <Filter>light</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="tool.cpp">
-      <Filter>源文件</Filter>
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="transform.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="pipeline.cpp">
+      <Filter>shader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -60,73 +73,82 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tool.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="draw.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="color.h">
-      <Filter>头文件</Filter>
+      <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="renderer.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="vector3.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="mathf.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="matrix4x4.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="quaternion.h">
-      <Filter>头文件</Filter>
+      <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="gameobject.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="mesh.h">
-      <Filter>头文件</Filter>
+      <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="transform.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="obj.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="camera.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="rect.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="plane.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="alignallocator.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="face.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="material.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="light.h">
-      <Filter>头文件</Filter>
+      <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="vector2.h">
-      <Filter>头文件</Filter>
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="vector3.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="quaternion.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="matrix4x4.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="mathf.h">
+      <Filter>math</Filter>
     </ClInclude>
     <ClInclude Include="bmp.h">
-      <Filter>头文件</Filter>
+      <Filter>texture</Filter>
     </ClInclude>
     <ClInclude Include="texture.h">
-      <Filter>头文件</Filter>
+      <Filter>texture</Filter>
+    </ClInclude>
+    <ClInclude Include="obj.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="plane.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>camera</Filter>
+    </ClInclude>
+    <ClInclude Include="rect.h">
+      <Filter>camera</Filter>
+    </ClInclude>
+    <ClInclude Include="material.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="color.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="alignallocator.h">
+      <Filter>allocator</Filter>
+    </ClInclude>
+    <ClInclude Include="light.h">
+      <Filter>light</Filter>
     </ClInclude>
     <ClInclude Include="zbuffer.h">
-      <Filter>头文件</Filter>
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="pipeline.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="vertex.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="shader.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="face.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="gouraudshader.h">
+      <Filter>shader</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

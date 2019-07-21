@@ -9,9 +9,8 @@ using namespace std;
 class Bmp
 {
 public:
-	static Texture Load(const string& filename)
+	static Texture* Load(const string& filename)
 	{
-		Texture res;
 		FILE* fp;
 		BITMAPFILEHEADER header;
 		RGBQUAD palette[256];
@@ -25,7 +24,7 @@ public:
 			if (0x4d42 != header.bfType)
 			{
 				cout << filename << " is not a bmp file!" << endl;
-				return res;
+				return NULL;
 			}
 			fread(&info, 1, sizeof(BITMAPINFOHEADER), fp);
 			//showBmpInforHead(info);
@@ -38,29 +37,30 @@ public:
 				cout << "strPla[nCounti].rgbGreen" << palette[nCounti].rgbGreen << endl;
 				cout << "strPla[nCounti].rgbRed" << palette[nCounti].rgbRed << endl;
 			}
-			res.width = info.biWidth;
-			res.height = info.biHeight;
-			res.SetMipMapLevel(log2f(fminf(res.width, res.height)));
-			res.buffer[0] = (BYTE*)calloc(sizeof(BYTE), info.biSizeImage);
+			Texture* res = new Texture;
+			res->width = info.biWidth;
+			res->height = info.biHeight;
+			res->SetMipMapLevel(log2f(fminf(res->width, res->height)));
+			res->buffer[0] = (BYTE*)calloc(sizeof(BYTE), info.biSizeImage);
 			fseek(fp, -(int)(info.biSizeImage), SEEK_END);
-			fread(res.buffer[0], sizeof(BYTE), info.biSizeImage, fp);
+			fread(res->buffer[0], sizeof(BYTE), info.biSizeImage, fp);
 			fclose(fp);
 			//flip bmp
 			int bytes_per_line = sizeof(BYTE) * info.biBitCount / 8 * info.biWidth;
 			BYTE* tmp = (BYTE*)malloc(info.biSizeImage);
-			memcpy(tmp, res.buffer[0], info.biSizeImage);
+			memcpy(tmp, res->buffer[0], info.biSizeImage);
 			for (int i = 0; i < info.biHeight; i++)
 			{
-				memcpy(&res.buffer[0][((info.biHeight - 1) - i) * bytes_per_line], &tmp[i * bytes_per_line], bytes_per_line);
+				memcpy(&res->buffer[0][((info.biHeight - 1) - i) * bytes_per_line], &tmp[i * bytes_per_line], bytes_per_line);
 			}
 			free(tmp);
-			res.GenerateMipMap();
+			res->GenerateMipMap();
 			return res;
 		}
 		else
 		{
 			cout << filename << " open error!" << endl;
-			return res;
+			return NULL;
 		}
 	}
 

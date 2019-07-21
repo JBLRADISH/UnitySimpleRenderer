@@ -8,9 +8,12 @@ class ZBuffer
 public:
 	void CreateZBuffer(Rect& rect)
 	{
-		width = rect.width;
-		height = rect.height;
-		buffer = (float*)malloc(width * height * sizeof(float));
+		if (buffer == NULL)
+		{
+			width = rect.width;
+			height = rect.height;
+			buffer = (float*)malloc(width * height * sizeof(float));
+		}
 	}
 
 	void ClearZBuffer(float data)
@@ -27,7 +30,7 @@ public:
 	bool DepthTest(int i, int j, float z) const
 	{
 		float tmp = buffer[j * width + i];
-		if (z >= tmp)
+		if (z <= tmp)
 		{
 			buffer[j * width + i] = z;
 			return true;

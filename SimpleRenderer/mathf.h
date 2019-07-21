@@ -18,6 +18,8 @@ bool Equal(float f1, float f2);
 
 float SmoothStep(float t);
 
+float Lerp(float f1, float f2, float t);
+
 inline int Round(float value)
 {
 	int res;

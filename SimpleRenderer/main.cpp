@@ -1,20 +1,10 @@
 ﻿#include <iostream>
 #include "renderer.h"
-#include "draw.h"
 #include "obj.h"
 #include "gameobject.h"
 #include "camera.h"
-#include "light.h"
-#include "zbuffer.h"
-
-enum ShadingMode
-{
-	Wireframe,
-	Constant, //固定着色
-	Flat, //恒定着色
-	Gouraud, //逐顶点着色
-	Map
-};
+#include "pipeline.h"
+#include "gouraudshader.h"
 
 void Input();
 void Render();
@@ -25,14 +15,7 @@ SDL_Event e;
 
 GameObject* go;
 Camera* cam;
-vector<Vector3> vertexBuffer;
-vector<Color> colorBuffer;
-ZBuffer zBuffer;
-Matrix4x4 m;
-Matrix4x4 vp;
-Matrix4x4 mvp;
-vector<Light> lights;
-ShadingMode shadingMode;
+Pipeline pipeline;
 
 int main(int argc, char* args[])
 {
@@ -41,26 +24,56 @@ int main(int argc, char* args[])
 		return 0;
 	}
 
-	shadingMode = ShadingMode::Map;
-
 	GameObject tmp = Obj::Load("lenin.obj");
 	go = &tmp;
 	go->material.cDiffuse = Color::white;
 	go->transform.scale = Vector3::one * 0.01f;
-	vertexBuffer.resize(go->mesh.vertexCount());
+
+	GouraudShader gouraudShader;
+	pipeline.SetShader(&gouraudShader);
+	pipeline.SetMaterial(go->material);
+
+	VertexIn* vertexs = (VertexIn*)malloc(sizeof(VertexIn) * go->mesh.vertexCount());
+	for (int i = 0; i < go->mesh.vertexCount(); i++)
+	{
+		vertexs[i].position = go->mesh.vertices[i];
+		vertexs[i].normal = go->mesh.normals[i];
+		vertexs[i].texcoord = go->mesh.uv[i];
+	}
+	int vbo = pipeline.CreateBuffer(Buffer::ARRAY_BUFFER);
+	pipeline.BindBuffer(vbo);
+	pipeline.BufferData(Buffer::ARRAY_BUFFER, sizeof(VertexIn) * go->mesh.vertexCount(), vertexs);
+	free(vertexs);
+
+	int* idxs = (int*)malloc(sizeof(int) * go->mesh.faces.size() * 3);
+	int ibo = pipeline.CreateBuffer(Buffer::ELEMENT_ARRAY_BUFFER);
+	pipeline.BindBuffer(ibo);
+	for (int i = 0; i < go->mesh.faces.size(); i++)
+	{
+		idxs[i * 3] = go->mesh.faces[i].vidx1;
+		idxs[i * 3 + 1] = go->mesh.faces[i].vidx2;
+		idxs[i * 3 + 2] = go->mesh.faces[i].vidx3;
+	}
+	pipeline.BufferData(Buffer::ELEMENT_ARRAY_BUFFER, sizeof(int) * go->mesh.faces.size() * 3, idxs);
+	free(idxs);
+
+	int tbo = pipeline.GenTexture();
+	pipeline.BindTexture(tbo);
+	pipeline.TexStorage("diffuse.bmp");
 
 	cam = &Camera(60.0f, 0.3f, 1000.0f, Rect(0, 0, 800, 600));
 	cam->transform.position = Vector3(236.6051f, 119.8119f, -1.424029f);
 	cam->transform.rotation = Quaternion::Euler(Vector3(6.532001f, -90.06901f, 0.0f));
+	pipeline.SetViewPort(cam->viewport);
 
-	zBuffer.CreateZBuffer(cam->viewport);
+	pipeline.SetCullFace(true);
+	pipeline.SetPolygonMode(PolygonMode::Triangle);
+	pipeline.SetScreenSurface(render.screenSurface);
 
-	m = go->transform.localToWorldMatrix();
-	vp = cam->projectionMatrix() * cam->worldToCameraMatrix();
-	mvp = vp * m;
+	//Light directionalLight = Light::CreateDirectionalLight(Quaternion::Euler(Vector3(90.0f, 0.0f, 0.0f)), Color::red, 2.0f);
+	//pipeline.SetLight(&directionalLight);
 
-	Light directional = Light::CreateDirectionalLight(Quaternion::Euler(Vector3(90.0f, 0.0f, 0.0f)), Color::red, 2.0f);
-	lights.push_back(directional);
+	pipeline.SetDepthTest(true);
 
 	while (!quit)
 	{
@@ -97,21 +110,9 @@ void Input()
 				quit = true;
 				break;
 			case SDLK_w:
-			{
-				int tmp = shadingMode;
-				tmp++;
-				tmp = tmp % 5;
-				shadingMode = (ShadingMode)tmp;
-			}
-			break;
+				break;
 			case SDLK_s:
-			{
-				int tmp = shadingMode;
-				tmp--;
-				tmp = tmp ? tmp : 5;
-				shadingMode = (ShadingMode)tmp;
-			}
-			break;
+				break;
 			}
 		}
 	}
@@ -119,127 +120,10 @@ void Input()
 
 void Render()
 {
-	Draw::DrawClearColor(render.screenSurface, Color::white);
-	zBuffer.ClearZBuffer(1.0f);
-	if (shadingMode == ShadingMode::Wireframe || shadingMode == ShadingMode::Constant || shadingMode == ShadingMode::Map)
-	{
-		for (int i = 0; i < go->mesh.vertexCount(); i++)
-		{
-			vertexBuffer[i] = mvp * go->mesh.vertices[i];
-			vertexBuffer[i] = cam->screenPoint(vertexBuffer[i]);
-		}
-	}
-	else
-	{
-		if (shadingMode == ShadingMode::Flat)
-		{
-			for (int i = 0; i < go->mesh.vertexCount(); i++)
-			{
-				vertexBuffer[i] = m * go->mesh.vertices[i];
-			}
-			colorBuffer.resize(go->mesh.faces.size());
-			for (int i = 0; i < go->mesh.faces.size(); i++)
-			{
-				Vector3 v1 = vertexBuffer[go->mesh.faces[i].vidx1];
-				Vector3 v2 = vertexBuffer[go->mesh.faces[i].vidx2];
-				Vector3 v3 = vertexBuffer[go->mesh.faces[i].vidx3];
-				Vector3 e0 = v1 - v2;
-				Vector3 e1 = v2 - v3;
-				Vector3 n = Vector3::Cross(e1, e0);
-				Color c = Color::black;
-				for (int j = 0; j < lights.size(); j++)
-				{
-					Light light = lights[j];
-					if (light.type == LightType::Ambient)
-					{
-						c = c + go->material.cAmbient * light.GetLightColor() * light.GetLightAtten(v1);
-					}
-					else
-					{
-						Vector3 forward = light.GetLightDir();
-						float costheta = Vector3::Dot(n, forward * (-1.0f));
-						if (costheta <= 0.0f)
-						{
-							continue;
-						}
-						costheta /= Vector3::Magnitude(n);
-						c = c + go->material.cDiffuse * light.GetLightColor() * light.GetLightAtten(v1) * costheta;
-					}
-				}
-				colorBuffer[i] = c;
-			}
-		}
-		else if (shadingMode == ShadingMode::Gouraud)
-		{
-			colorBuffer.resize(go->mesh.vertexCount());
-			for (int i = 0; i < go->mesh.vertexCount(); i++)
-			{
-				vertexBuffer[i] = m * go->mesh.vertices[i];
-				Vector3 v1 = vertexBuffer[i];
-				Vector3 n = m * go->mesh.normals[i];
-				Color c = Color::black;
-				for (int j = 0; j < lights.size(); j++)
-				{
-					Light light = lights[j];
-					if (light.type == LightType::Ambient)
-					{
-						c = c + go->material.cAmbient * light.GetLightColor() * light.GetLightAtten(v1);
-					}
-					else
-					{
-						Vector3 forward = light.GetLightDir();
-						float costheta = Vector3::Dot(n, forward * (-1.0f));
-						if (costheta <= 0.0f)
-						{
-							continue;
-						}
-						costheta /= Vector3::Magnitude(n);
-						c = c + go->material.cDiffuse * light.GetLightColor() * light.GetLightAtten(v1) * costheta;
-					}
-				}
-				colorBuffer[i] = c;
-			}
-		}
-		for (int i = 0; i < go->mesh.vertexCount(); i++)
-		{
-			vertexBuffer[i] = vp * vertexBuffer[i];
-			vertexBuffer[i] = cam->screenPoint(vertexBuffer[i]);
-		}
-	}
-	for (int i = 0; i < go->mesh.faces.size(); i++)
-	{
-		int idx1 = go->mesh.faces[i].vidx1;
-		int idx2 = go->mesh.faces[i].vidx2;
-		int idx3 = go->mesh.faces[i].vidx3;
-		Vector3 v1 = vertexBuffer[idx1];
-		Vector3 v2 = vertexBuffer[idx2];
-		Vector3 v3 = vertexBuffer[idx3];
-		if (cam->CullFace_ScreenSpace(v1, v2, v3))
-		{
-			switch (shadingMode)
-			{
-			case ShadingMode::Wireframe:
-				Draw::DrawClipLine(render.screenSurface, cam->viewport, v1.x, v1.y, v2.x, v2.y, Color::black);
-				Draw::DrawClipLine(render.screenSurface, cam->viewport, v1.x, v1.y, v3.x, v3.y, Color::black);
-				Draw::DrawClipLine(render.screenSurface, cam->viewport, v2.x, v2.y, v3.x, v3.y, Color::black);
-				break;
-			case ShadingMode::Constant:
-				Draw::DrawTriangle_Flat(render.screenSurface, cam->viewport, v1.x, v1.y, v2.x, v2.y, v3.x, v3.y, Color::black);
-				break;
-			case ShadingMode::Flat:
-				Draw::DrawTriangle_Flat(render.screenSurface, cam->viewport, v1.x, v1.y, v2.x, v2.y, v3.x, v3.y, colorBuffer[i]);
-				break;
-			case ShadingMode::Gouraud:
-				Draw::DrawTriangle_Gouraud(render.screenSurface, cam->viewport, v1.x, v1.y, v2.x, v2.y, v3.x, v3.y, colorBuffer[idx1], colorBuffer[idx2], colorBuffer[idx3]);
-				break;
-			case ShadingMode::Map:
-				int uvidx1 = go->mesh.faces[i].uvidx1;
-				int uvidx2 = go->mesh.faces[i].uvidx2;
-				int uvidx3 = go->mesh.faces[i].uvidx3;
-				Draw::DrawTriangle_Tex_Gouraud(render.screenSurface, cam->viewport, v1, v2, v3, go->mesh.uv[uvidx1], go->mesh.uv[uvidx2], go->mesh.uv[uvidx3], go->material, zBuffer);
-				break;
-			}
-		}
-	}
+	pipeline.DrawClearColor(Color::white);
+	pipeline.ClearZBuffer(1.0f);
+	pipeline.shader->SetModelMatrix(go->transform.localToWorldMatrix());
+	pipeline.shader->SetViewProjectionMatrix(cam->projectionMatrix() * cam->worldToCameraMatrix());
+	pipeline.Draw(0, go->mesh.faces.size() * 3);
 	SDL_UpdateWindowSurface(render.window);
 }

@@ -129,12 +129,12 @@
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="color.cpp" />
-    <ClCompile Include="draw.cpp" />
     <ClCompile Include="light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mathf.cpp" />
     <ClCompile Include="matrix4x4.cpp" />
     <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="pipeline.cpp" />
     <ClCompile Include="quaternion.cpp" />
     <ClCompile Include="tool.cpp" />
     <ClCompile Include="transform.cpp" />
@@ -150,23 +150,26 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="face.h" />
     <ClInclude Include="gameobject.h" />
+    <ClInclude Include="gouraudshader.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="mathf.h" />
     <ClInclude Include="matrix4x4.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="obj.h" />
+    <ClInclude Include="pipeline.h" />
     <ClInclude Include="plane.h" />
     <ClInclude Include="quaternion.h" />
     <ClInclude Include="rect.h" />
     <ClInclude Include="renderer.h" />
     <ClInclude Include="color.h" />
-    <ClInclude Include="draw.h" />
+    <ClInclude Include="shader.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="tool.h" />
     <ClInclude Include="transform.h" />
     <ClInclude Include="vector2.h" />
     <ClInclude Include="vector3.h" />
+    <ClInclude Include="vertex.h" />
     <ClInclude Include="zbuffer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -30,19 +30,6 @@ Matrix4x4 Camera::projectionMatrix()
 	return Matrix4x4::Perspective(fov, aspect, zNear, zFar);
 }
 
-Vector3 Camera::screenPoint(const Vector3& v)
-{
-	float invW = 1.0f / v.w;
-	float ndcX = v.x * invW;
-	float ndcY = v.y * invW;
-	float ndcZ = (v.z * invW + 1.0f) / 2;
-	Vector3 screenPos;
-	screenPos.x = viewport.x + (ndcX + 1.0f) * 0.5f * (viewport.xmax());
-	screenPos.y = viewport.y + (1.0f - (ndcY + 1.0f) * 0.5f) * (viewport.ymax());
-	screenPos.z = ndcZ;
-	return screenPos;
-}
-
 //基于世界空间背面裁剪
 bool Camera::CullFace_WorldSpace(Vector3& v1, Vector3& v2, Vector3& v3)
 {
@@ -52,19 +39,6 @@ bool Camera::CullFace_WorldSpace(Vector3& v1, Vector3& v2, Vector3& v3)
 	Vector3 view = transform.position - v1;
 	float dp = Vector3::Dot(n, view);
 	if (dp <= 0.0f)
-	{
-		return false;
-	}
-	return true;
-}
-
-//基于屏幕空间背面裁剪
-bool Camera::CullFace_ScreenSpace(Vector3& v1, Vector3& v2, Vector3& v3)
-{
-	//计算平面三角形有向面积 d >= 0 则被裁剪
-	float d = v1.x * (v2.y - v3.y) + v1.y * (v3.x - v2.x) + v2.x * v3.y - v3.x * v2.y;
-	//标准公式应该再d * 0.5f, 但现在只需得到正负
-	if (d >= 0)
 	{
 		return false;
 	}

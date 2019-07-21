@@ -8,7 +8,6 @@ enum TextureFilter
 {
 	Filter_Point,
 	Filter_Bilinear,
-	Filter_Trilinear
 };
 
 class Texture
@@ -51,12 +50,13 @@ public:
 		return Color(buffer[level][idx + 2], buffer[level][idx + 1], buffer[level][idx]);
 	}
 
-	void GetRGB(Vector2 uv, Color& c) const
+	Color GetColor(const Vector2& uv) const
 	{
+		Color res;
 		if (width == 0)
 		{
-			c = Color::white;
-			return;
+			res = Color::white;
+			return res;
 		}
 		if (texFilter == TextureFilter::Filter_Point)
 		{
@@ -64,28 +64,13 @@ public:
 			//竖直方向要取反
 			int y = (1 - uv.y) * (height - 1);
 			int idx = (y * width + x) << 2;
-			c = GetColor(idx, 0);
+			res = GetColor(idx, 0) / 255.0f;
 		}
 		else if (texFilter == TextureFilter::Filter_Bilinear)
 		{
-			c = Bilinear(uv, width, height, 0);
+			res = Bilinear(uv, width, height, 0) / 255.0f;
 		}
-		else if (texFilter == TextureFilter::Filter_Trilinear)
-		{
-			float d = 0.0f;
-			int floord = Floor(d);
-			if (Equal(d, floord))
-			{
-				c = Bilinear(uv, width, height, 0);
-			}
-			else
-			{
-				int ceild = floord + 1;
-				Color ceilColor = Bilinear(uv, width >> ceild, height >> ceild, ceild);
-				Color floorColor = Bilinear(uv, width >> floord, height >> floord, floord);
-				c = Color::Lerp(floorColor, ceilColor, d - floord);
-			}
-		}
+		return res;
 	}
 
 	Color Bilinear(Vector2 uv, int width, int height, int mipmapLevel) const

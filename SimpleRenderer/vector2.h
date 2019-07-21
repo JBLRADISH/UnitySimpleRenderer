@@ -25,4 +25,6 @@ public:
 	Vector2 operator-(const Vector2& v) const;
 	Vector2 operator*(float k) const;
 	Vector2 operator/(float k) const;
+
+	static Vector2 Lerp(const Vector2& v1, const Vector2& v2, float t);
 };
