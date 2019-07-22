@@ -35,7 +35,7 @@ public:
 
 	Vector3() = default;
 
-	Vector3(float x, float y, float z, float w = 0.0f)
+	Vector3(float x, float y, float z = 0.0f, float w = 0.0f)
 	{
 		this->x = x;
 		this->y = y;

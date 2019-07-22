@@ -21,6 +21,7 @@ public:
 		this->y = y;
 	}
 
+	float& operator[](int idx);
 	Vector2 operator+(const Vector2& v) const;
 	Vector2 operator-(const Vector2& v) const;
 	Vector2 operator*(float k) const;

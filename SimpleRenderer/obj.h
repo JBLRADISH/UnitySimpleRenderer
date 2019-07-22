@@ -4,7 +4,6 @@
 #include <fstream>
 #include <iostream>
 #include "gameobject.h"
-#include "bmp.h"
 using namespace std;
 
 class Obj
@@ -57,7 +56,11 @@ GameObject Obj::Load(const string& filename)
 		{
 			if (sscanf(buffer, "f %d/%d %d/%d %d/%d", &vidx1, &uvidx1, &vidx2, &uvidx2, &vidx3, &uvidx3) == 6)
 			{
-				res.mesh.faces.push_back(Face(vidx1 - 1, vidx2 - 1, vidx3 - 1, uvidx1 - 1, uvidx2 - 1, uvidx3 - 1));
+				res.mesh.faces.push_back(Face(vidx1 - 1, vidx2 - 1, vidx3 - 1));
+			}
+			else if (sscanf(buffer, "f %d %d %d", &vidx1, &vidx2, &vidx3) == 3)
+			{
+				res.mesh.faces.push_back(Face(vidx1 - 1, vidx2 - 1, vidx3 - 1));
 			}
 			else
 			{

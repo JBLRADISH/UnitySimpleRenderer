@@ -1,5 +1,10 @@
 #include "vector2.h"
 
+float& Vector2::operator[](int idx)
+{
+	return v[idx];
+}
+
 Vector2 Vector2::operator+(const Vector2& v) const
 {
 	return Vector2(x + v.x, y + v.y);

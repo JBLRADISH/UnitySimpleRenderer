@@ -146,7 +146,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="alignallocator.h" />
-    <ClInclude Include="bmp.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="face.h" />
     <ClInclude Include="gameobject.h" />
@@ -164,7 +163,10 @@
     <ClInclude Include="renderer.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="skyboxshader.h" />
     <ClInclude Include="texture.h" />
+    <ClInclude Include="texture2d.h" />
+    <ClInclude Include="texturecube.h" />
     <ClInclude Include="tool.h" />
     <ClInclude Include="transform.h" />
     <ClInclude Include="vector2.h" />

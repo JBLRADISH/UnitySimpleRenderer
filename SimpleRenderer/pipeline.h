@@ -5,6 +5,7 @@
 #include "rect.h"
 #include "light.h"
 #include "zbuffer.h"
+#include <vector>
 #include <map>
 using namespace std;
 
@@ -32,31 +33,24 @@ public:
 
 	int GenTexture();
 	void BindTexture(int id);
-	void TexStorage(const string& filename);
+	void Tex2DStorage(const string& filename, bool mipmap);
+	void TexCubeStorage(vector<string> filename, bool mipmap);
 	Texture* GetTextureData();
 	void DeleteTexture(int id);
 
 	void SetPolygonMode(PolygonMode polygonMode) { this->polygonMode = polygonMode; }
 	void SetShader(Shader* shader) { this->shader = shader; }
-	void SetMaterial(const Material& material) { this->material = material; shader->SetMaterial(this->material); }
+	void SetMaterial(const Material& material) { this->material = material; }
 	void Draw(int idx, int count);
 
-	void SetLight(Light* light) { this->light = light; shader->SetLight(this->light); }
+	void SetLight(Light* light) { this->light = light; }
 
 	void SetCullFace(bool cullFace) { this->cullFace = cullFace; }
 
 	void SetScreenSurface(SDL_Surface* surface) { this->surface = surface; }
 	void SetViewPort(const Rect& rect) { this->rect = rect; }
 
-	void SetDepthTest(bool depthTest)
-	{
-		this->depthTest = depthTest;
-		if (depthTest)
-		{
-			zBuffer.CreateZBuffer(rect);
-		}
-	}
-
+	void SetDepthTest(bool depthTest);
 	void ClearZBuffer(float data) { zBuffer.ClearZBuffer(data); }
 
 	void DrawPoint(int x, int y, const Color& c);

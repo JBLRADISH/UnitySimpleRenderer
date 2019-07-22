@@ -15,7 +15,7 @@ public:
 class VertexOut {
 public:
 	Vector3 position;
-	Vector2 texcoord;
+	Vector3 texcoord;
 	Color color;
 	float invz;
 
@@ -54,7 +54,7 @@ public:
 		VertexOut res;
 		res.position = Vector3::Lerp(out1.position, out2.position, t);
 		res.color = Color::Lerp(out1.color, out2.color, t);
-		res.texcoord = Vector2::Lerp(out1.texcoord, out2.texcoord, t);
+		res.texcoord = Vector3::Lerp(out1.texcoord, out2.texcoord, t);
 		res.invz = out1.invz + (out2.invz - out1.invz) * t;
 		return res;
 	}

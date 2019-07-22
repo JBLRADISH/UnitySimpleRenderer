@@ -99,12 +99,6 @@
     <ClInclude Include="mathf.h">
       <Filter>math</Filter>
     </ClInclude>
-    <ClInclude Include="bmp.h">
-      <Filter>texture</Filter>
-    </ClInclude>
-    <ClInclude Include="texture.h">
-      <Filter>texture</Filter>
-    </ClInclude>
     <ClInclude Include="obj.h">
       <Filter>model</Filter>
     </ClInclude>
@@ -138,9 +132,6 @@
     <ClInclude Include="pipeline.h">
       <Filter>shader</Filter>
     </ClInclude>
-    <ClInclude Include="vertex.h">
-      <Filter>shader</Filter>
-    </ClInclude>
     <ClInclude Include="shader.h">
       <Filter>shader</Filter>
     </ClInclude>
@@ -148,6 +139,21 @@
       <Filter>model</Filter>
     </ClInclude>
     <ClInclude Include="gouraudshader.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="texturecube.h">
+      <Filter>texture</Filter>
+    </ClInclude>
+    <ClInclude Include="texture2d.h">
+      <Filter>texture</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>texture</Filter>
+    </ClInclude>
+    <ClInclude Include="vertex.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="skyboxshader.h">
       <Filter>shader</Filter>
     </ClInclude>
   </ItemGroup>

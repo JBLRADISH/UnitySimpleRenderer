@@ -53,7 +53,7 @@ public:
 			out.color = mat.cDiffuse;
 		}
 		out.position = vp * out.position;
-		out.texcoord = in.texcoord;
+		out.texcoord = Vector3(in.texcoord.x, in.texcoord.y);
 		return out;
 	}
 

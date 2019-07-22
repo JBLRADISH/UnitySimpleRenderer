@@ -194,6 +194,15 @@ Matrix4x4 Matrix4x4::Translate(const Vector3& v)
 	return res;
 }
 
+//去掉矩阵中的平移部分
+Matrix4x4 Matrix4x4::IgnoreTranslate()
+{
+	Matrix4x4 res = *this;
+	res[3] = Vector3::zero;
+	res[3][3] = 1.0f;
+	return res;
+}
+
 //TODO 根据四元数创建旋转矩阵
 Matrix4x4 Matrix4x4::Rotate(const Quaternion& q)
 {

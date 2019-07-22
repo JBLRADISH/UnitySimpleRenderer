@@ -1,6 +1,7 @@
 #include "pipeline.h"
 #include "tool.h"
-#include "bmp.h"
+#include "texture2d.h"
+#include "texturecube.h"
 
 Pipeline::Pipeline()
 {
@@ -62,11 +63,23 @@ void Pipeline::BindTexture(int id)
 	bindtexid = id;
 }
 
-void Pipeline::TexStorage(const string& filename)
+void Pipeline::Tex2DStorage(const string& filename, bool mipmap)
 {
 	if (bindtexid)
 	{
-		texmap[bindtexid] = Bmp::Load(filename);
+		Texture2D* tex = new Texture2D;
+		tex->Load(filename, mipmap);
+		texmap[bindtexid] = tex;
+	}
+}
+
+void Pipeline::TexCubeStorage(vector<string> filename, bool mipmap)
+{
+	if (bindtexid)
+	{
+		TextureCube* tex = new TextureCube;
+		tex->Load(filename, mipmap);
+		texmap[bindtexid] = tex;
 	}
 }
 
@@ -84,8 +97,17 @@ void Pipeline::DeleteTexture(int id)
 	if (texmap.count(id))
 	{
 		texmap[id]->UnLoad();
-		free(texmap[id]);
+		delete texmap[id];
 		texmap.erase(id);
+	}
+}
+
+void Pipeline::SetDepthTest(bool depthTest)
+{
+	this->depthTest = depthTest;
+	if (depthTest)
+	{
+		zBuffer.CreateZBuffer(rect);
 	}
 }
 
@@ -160,7 +182,10 @@ bool Pipeline::CullFace_ScreenSpace(const VertexOut& out1, const VertexOut& out2
 
 void Pipeline::DrawPoint(int x, int y, const Color& c)
 {
-	*GetPixelAddress(surface, x, y) = Color2Uint32(c);
+	if (x >= rect.x && x <= rect.xmax() && y >= rect.y && y <= rect.ymax())
+	{
+		*GetPixelAddress(surface, x, y) = Color2Uint32(c);
+	}
 }
 
 void Pipeline::DrawHLine(int x1, int x2, int y, const Color& c)
@@ -654,6 +679,8 @@ void Pipeline::DrawTriangle(const VertexOut& out1, const VertexOut& out2, const 
 		return;
 	}
 
+	shader->SetMaterial(material);
+	shader->SetLight(light);
 	shader->SetTexture(GetTextureData());
 
 	if (Equal(newOut1.position.y, newOut2.position.y))

@@ -5,6 +5,7 @@
 #include "camera.h"
 #include "pipeline.h"
 #include "gouraudshader.h"
+#include "skyboxshader.h"
 
 void Input();
 void Render();
@@ -17,6 +18,13 @@ GameObject* go;
 Camera* cam;
 Pipeline pipeline;
 
+int itemvbo;
+int itemibo;
+int itemtbo;
+int skyboxvbo;
+int skyboxibo;
+int skyboxtbo;
+
 int main(int argc, char* args[])
 {
 	if (!render.sdlInit("Renderer", 800, 600, 30))
@@ -24,14 +32,11 @@ int main(int argc, char* args[])
 		return 0;
 	}
 
-	GameObject tmp = Obj::Load("lenin.obj");
-	go = &tmp;
+	GameObject item = Obj::Load("lenin.obj");
+	go = &item;
 	go->material.cDiffuse = Color::white;
+	go->transform.rotation = Quaternion::Euler(Vector3(0.0f, 90.0f, 0.0f));
 	go->transform.scale = Vector3::one * 0.01f;
-
-	GouraudShader gouraudShader;
-	pipeline.SetShader(&gouraudShader);
-	pipeline.SetMaterial(go->material);
 
 	VertexIn* vertexs = (VertexIn*)malloc(sizeof(VertexIn) * go->mesh.vertexCount());
 	for (int i = 0; i < go->mesh.vertexCount(); i++)
@@ -40,14 +45,14 @@ int main(int argc, char* args[])
 		vertexs[i].normal = go->mesh.normals[i];
 		vertexs[i].texcoord = go->mesh.uv[i];
 	}
-	int vbo = pipeline.CreateBuffer(Buffer::ARRAY_BUFFER);
-	pipeline.BindBuffer(vbo);
+	itemvbo = pipeline.CreateBuffer(Buffer::ARRAY_BUFFER);
+	pipeline.BindBuffer(itemvbo);
 	pipeline.BufferData(Buffer::ARRAY_BUFFER, sizeof(VertexIn) * go->mesh.vertexCount(), vertexs);
 	free(vertexs);
 
 	int* idxs = (int*)malloc(sizeof(int) * go->mesh.faces.size() * 3);
-	int ibo = pipeline.CreateBuffer(Buffer::ELEMENT_ARRAY_BUFFER);
-	pipeline.BindBuffer(ibo);
+	itemibo = pipeline.CreateBuffer(Buffer::ELEMENT_ARRAY_BUFFER);
+	pipeline.BindBuffer(itemibo);
 	for (int i = 0; i < go->mesh.faces.size(); i++)
 	{
 		idxs[i * 3] = go->mesh.faces[i].vidx1;
@@ -57,18 +62,47 @@ int main(int argc, char* args[])
 	pipeline.BufferData(Buffer::ELEMENT_ARRAY_BUFFER, sizeof(int) * go->mesh.faces.size() * 3, idxs);
 	free(idxs);
 
-	int tbo = pipeline.GenTexture();
-	pipeline.BindTexture(tbo);
-	pipeline.TexStorage("diffuse.bmp");
+	itemtbo = pipeline.GenTexture();
+	pipeline.BindTexture(itemtbo);
+	pipeline.Tex2DStorage("diffuse.bmp", false);
+
+	GameObject skybox = Obj::Load("cube.obj");
+
+	vertexs = (VertexIn*)malloc(sizeof(VertexIn) * skybox.mesh.vertexCount());
+	for (int i = 0; i < skybox.mesh.vertexCount(); i++)
+	{
+		vertexs[i].position = skybox.mesh.vertices[i];
+	}
+	skyboxvbo = pipeline.CreateBuffer(Buffer::ARRAY_BUFFER);
+	pipeline.BindBuffer(skyboxvbo);
+	pipeline.BufferData(Buffer::ARRAY_BUFFER, sizeof(VertexIn) * skybox.mesh.vertexCount(), vertexs);
+	free(vertexs);
+
+	idxs = (int*)malloc(sizeof(int) * skybox.mesh.faces.size() * 3);
+	skyboxibo = pipeline.CreateBuffer(Buffer::ELEMENT_ARRAY_BUFFER);
+	pipeline.BindBuffer(skyboxibo);
+	for (int i = 0; i < skybox.mesh.faces.size(); i++)
+	{
+		idxs[i * 3] = skybox.mesh.faces[i].vidx1;
+		idxs[i * 3 + 1] = skybox.mesh.faces[i].vidx2;
+		idxs[i * 3 + 2] = skybox.mesh.faces[i].vidx3;
+	}
+	pipeline.BufferData(Buffer::ELEMENT_ARRAY_BUFFER, sizeof(int) * skybox.mesh.faces.size() * 3, idxs);
+	free(idxs);
+
+	skyboxtbo = pipeline.GenTexture();
+	pipeline.BindTexture(skyboxtbo);
+	pipeline.TexCubeStorage({ "right.bmp", "top.bmp", "front.bmp", "left.bmp", "bottom.bmp", "back.bmp" }, false);
 
 	cam = &Camera(60.0f, 0.3f, 1000.0f, Rect(0, 0, 800, 600));
-	cam->transform.position = Vector3(236.6051f, 119.8119f, -1.424029f);
-	cam->transform.rotation = Quaternion::Euler(Vector3(6.532001f, -90.06901f, 0.0f));
+	cam->transform.position = Vector3(0.0f, 100.0f, -245.0f);
 	pipeline.SetViewPort(cam->viewport);
 
 	pipeline.SetCullFace(true);
 	pipeline.SetPolygonMode(PolygonMode::Triangle);
 	pipeline.SetScreenSurface(render.screenSurface);
+
+	pipeline.SetMaterial(go->material);
 
 	//Light directionalLight = Light::CreateDirectionalLight(Quaternion::Euler(Vector3(90.0f, 0.0f, 0.0f)), Color::red, 2.0f);
 	//pipeline.SetLight(&directionalLight);
@@ -109,9 +143,14 @@ void Input()
 			case SDLK_ESCAPE:
 				quit = true;
 				break;
-			case SDLK_w:
+			case SDLK_l:
+				pipeline.SetPolygonMode(PolygonMode::Line);
 				break;
-			case SDLK_s:
+			case SDLK_p:
+				pipeline.SetPolygonMode(PolygonMode::Point);
+				break;
+			case SDLK_t:
+				pipeline.SetPolygonMode(PolygonMode::Triangle);
 				break;
 			}
 		}
@@ -122,8 +161,26 @@ void Render()
 {
 	pipeline.DrawClearColor(Color::white);
 	pipeline.ClearZBuffer(1.0f);
+
+	Matrix4x4 p = cam->projectionMatrix();
+	Matrix4x4 v = cam->worldToCameraMatrix();
+
+	GouraudShader gouraudShader;
+	pipeline.SetShader(&gouraudShader);
 	pipeline.shader->SetModelMatrix(go->transform.localToWorldMatrix());
-	pipeline.shader->SetViewProjectionMatrix(cam->projectionMatrix() * cam->worldToCameraMatrix());
+	pipeline.shader->SetViewProjectionMatrix(p * v);
+	pipeline.BindBuffer(itemvbo);
+	pipeline.BindBuffer(itemibo);
+	pipeline.BindTexture(itemtbo);
 	pipeline.Draw(0, go->mesh.faces.size() * 3);
+
+	SkyBoxShader skyboxShader;
+	pipeline.SetShader(&skyboxShader);
+	pipeline.shader->SetViewProjectionMatrix(p * v.IgnoreTranslate());
+	pipeline.BindBuffer(skyboxvbo);
+	pipeline.BindBuffer(skyboxibo);
+	pipeline.BindTexture(skyboxtbo);
+	pipeline.Draw(0, 6);
+
 	SDL_UpdateWindowSurface(render.window);
 }
