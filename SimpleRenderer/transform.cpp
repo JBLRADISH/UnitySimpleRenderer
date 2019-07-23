@@ -2,14 +2,22 @@
 
 Matrix4x4 Transform::localToWorldMatrix()
 {
-	return Matrix4x4::TRS(position, rotation, scale);
+	if (dirty)
+	{
+		localToWorld = Matrix4x4::TRS(position, rotation, scale);
+		localToWorld.Inverse(worldToLocal);
+		dirty = false;
+	}
+	return localToWorld;
 }
 
 Matrix4x4 Transform::worldToLocalMatrix()
 {
-	Matrix4x4 inverseM;
-	localToWorldMatrix().Inverse(inverseM);
-	return inverseM;
+	if (dirty)
+	{
+		localToWorldMatrix();
+	}
+	return worldToLocal;
 }
 
 void Transform::LookAt(Vector3 target)

@@ -105,9 +105,6 @@
     <ClInclude Include="mesh.h">
       <Filter>model</Filter>
     </ClInclude>
-    <ClInclude Include="plane.h">
-      <Filter>model</Filter>
-    </ClInclude>
     <ClInclude Include="camera.h">
       <Filter>camera</Filter>
     </ClInclude>
@@ -155,6 +152,12 @@
     </ClInclude>
     <ClInclude Include="skyboxshader.h">
       <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="bounds.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="plane.h">
+      <Filter>camera</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

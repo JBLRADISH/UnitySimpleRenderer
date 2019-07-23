@@ -35,8 +35,8 @@ int main(int argc, char* args[])
 	GameObject item = Obj::Load("lenin.obj");
 	go = &item;
 	go->material.cDiffuse = Color::white;
-	go->transform.rotation = Quaternion::Euler(Vector3(0.0f, 90.0f, 0.0f));
-	go->transform.scale = Vector3::one * 0.01f;
+	go->transform.SetRotation(Quaternion::Euler(Vector3(0.0f, 90.0f, 0.0f)));
+	go->transform.SetScale(Vector3::one * 0.01f);
 
 	VertexIn* vertexs = (VertexIn*)malloc(sizeof(VertexIn) * go->mesh.vertexCount());
 	for (int i = 0; i < go->mesh.vertexCount(); i++)
@@ -95,7 +95,7 @@ int main(int argc, char* args[])
 	pipeline.TexCubeStorage({ "right.bmp", "top.bmp", "front.bmp", "left.bmp", "bottom.bmp", "back.bmp" }, false);
 
 	cam = &Camera(60.0f, 0.3f, 1000.0f, Rect(0, 0, 800, 600));
-	cam->transform.position = Vector3(0.0f, 100.0f, -245.0f);
+	cam->transform.SetPosition(Vector3(0.0f, 100.0f, -245.0f));
 	pipeline.SetViewPort(cam->viewport);
 
 	pipeline.SetCullFace(true);
@@ -162,21 +162,23 @@ void Render()
 	pipeline.DrawClearColor(Color::white);
 	pipeline.ClearZBuffer(1.0f);
 
-	Matrix4x4 p = cam->projectionMatrix();
-	Matrix4x4 v = cam->worldToCameraMatrix();
+	//物体剔除
+	if (!cam->OutSide(go->GetWorldBounds()))
+	{
+		GouraudShader gouraudShader;
+		pipeline.SetShader(&gouraudShader);
+		pipeline.shader->SetModelMatrix(go->transform.localToWorldMatrix());
+		pipeline.shader->SetViewProjectionMatrix(cam->viewProjectionMatrix());
+		pipeline.BindBuffer(itemvbo);
+		pipeline.BindBuffer(itemibo);
+		pipeline.BindTexture(itemtbo);
+		pipeline.Draw(0, go->mesh.faces.size() * 3);
+	}
 
-	GouraudShader gouraudShader;
-	pipeline.SetShader(&gouraudShader);
-	pipeline.shader->SetModelMatrix(go->transform.localToWorldMatrix());
-	pipeline.shader->SetViewProjectionMatrix(p * v);
-	pipeline.BindBuffer(itemvbo);
-	pipeline.BindBuffer(itemibo);
-	pipeline.BindTexture(itemtbo);
-	pipeline.Draw(0, go->mesh.faces.size() * 3);
-
+	//天空盒
 	SkyBoxShader skyboxShader;
 	pipeline.SetShader(&skyboxShader);
-	pipeline.shader->SetViewProjectionMatrix(p * v.IgnoreTranslate());
+	pipeline.shader->SetViewProjectionMatrix(cam->projectionMatrix() * cam->worldToCameraMatrix().IgnoreTranslate());
 	pipeline.BindBuffer(skyboxvbo);
 	pipeline.BindBuffer(skyboxibo);
 	pipeline.BindTexture(skyboxtbo);

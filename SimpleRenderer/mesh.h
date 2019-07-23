@@ -5,6 +5,7 @@
 #include "vector3.h"
 #include "alignallocator.h"
 #include "face.h"
+#include "bounds.h"
 using namespace std;
 
 class Mesh
@@ -15,8 +16,12 @@ public:
 	vector<Face> faces;
 	vector<Vector3, AlignmentAllocator<Vector3>> normals;
 	vector<Vector2> uv;
+	Bounds bounds;
 
 	int vertexCount();
 
 	void RecalculateNormals();
+	void RecalculateBounds();
+
+	Bounds GetWorldBounds(Matrix4x4& m);
 };

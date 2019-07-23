@@ -92,7 +92,8 @@ GameObject Obj::Load(const string& filename)
 
 	//计算顶点法线
 	res.mesh.RecalculateNormals();
-
+	//计算包围盒
+	res.mesh.RecalculateBounds();
 	return res;
 }
 

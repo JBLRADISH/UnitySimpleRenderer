@@ -10,9 +10,14 @@ public:
 
 	Plane() = default;
 
-	Plane(Vector3 n, Vector3 p)
+	Plane(Vector3 n, float d)
 	{
-		this->n = Vector3::Normalize(n);
-		d = -Vector3::Dot(this->n, p);
+		this->n = n;
+		this->d = d;
+	}
+
+	bool Inside(const Vector3& v)
+	{
+		return Vector3::Dot(v, n) <= d;
 	}
 };

@@ -31,3 +31,13 @@ void Mesh::RecalculateNormals()
 		normals[i] = normals[i].normalized();
 	}
 }
+
+void Mesh::RecalculateBounds()
+{
+	bounds.RecalculateBounds(vertices);
+}
+
+Bounds Mesh::GetWorldBounds(Matrix4x4& m)
+{
+	return bounds.GetWorldBounds(m);
+}

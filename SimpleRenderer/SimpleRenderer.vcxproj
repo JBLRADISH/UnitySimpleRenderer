@@ -146,6 +146,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="alignallocator.h" />
+    <ClInclude Include="bounds.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="face.h" />
     <ClInclude Include="gameobject.h" />

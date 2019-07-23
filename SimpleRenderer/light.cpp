@@ -13,7 +13,7 @@ Light Light::CreateAmbientLight(const Color& c, float intensity)
 Light Light::CreateDirectionalLight(const Quaternion& q, const Color& c, float intensity)
 {
 	Light res;
-	res.transform.rotation = q;
+	res.transform.SetRotation(q);
 	res.type = LightType::DirectionalLight;
 	res.color = c;
 	res.intensity = intensity;
@@ -23,7 +23,7 @@ Light Light::CreateDirectionalLight(const Quaternion& q, const Color& c, float i
 Light Light::CreatePointLight(const Vector3& p, const Color& c, float intensity, float range)
 {
 	Light res;
-	res.transform.position = p;
+	res.transform.SetPosition(p);
 	res.type = LightType::PointLight;
 	res.color = c;
 	res.intensity = intensity;
@@ -46,7 +46,7 @@ Light Light::CreateSpotLight(const Transform& t, const Color& c, float intensity
 
 Vector3 Light::GetLightDir()
 {
-	Quaternion q = transform.rotation;
+	const Quaternion& q = transform.GetRotation();
 	float num1 = q.x * 2.0f;
 	float num2 = q.y * 2.0f;
 	float num3 = q.z * 2.0f;
@@ -74,7 +74,7 @@ float Light::GetLightAtten(const Vector3& p)
 		break;
 	case PointLight:
 	{
-		Vector3 d = transform.position - p;
+		Vector3 d = transform.GetPosition() - p;
 		float dist2 = d.SqrMagnitude();
 		float range2 = range * range;
 		if (dist2 >= range2)
@@ -92,7 +92,7 @@ float Light::GetLightAtten(const Vector3& p)
 	case SpotLight:
 	{
 		Vector3 forward = GetLightDir();
-		Vector3 d = p - transform.position;
+		Vector3 d = p - transform.GetPosition();
 		float costhetas = Vector3::Dot(forward, d) / Vector3::Magnitude(d);
 		float costhetau = cosf(spotOuterAngle);
 		if (costhetas <= costhetau)
