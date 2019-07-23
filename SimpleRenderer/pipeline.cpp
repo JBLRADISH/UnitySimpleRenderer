@@ -417,8 +417,8 @@ void Pipeline::DrawTopTriangle(const VertexOut& out1, const VertexOut& out2, con
 	if (newOut1.position.y < rect.y)
 	{
 		float dy = rect.y - newOut1.position.y;
-		s = s + dleft * dy;
-		e = e + dright * dy;
+		s += dleft * dy;
+		e += dright * dy;
 		newOut1.position.y = rect.y;
 		iy1 = Floor(newOut1.position.y);
 	}
@@ -426,8 +426,8 @@ void Pipeline::DrawTopTriangle(const VertexOut& out1, const VertexOut& out2, con
 	{
 		iy1 = Ceil(newOut1.position.y);
 		float dy = iy1 - newOut1.position.y;
-		s = s + dleft * dy;
-		e = e + dright * dy;
+		s += dleft * dy;
+		e += dright * dy;
 	}
 
 	if (newOut3.position.y > rect.ymax())
@@ -463,11 +463,11 @@ void Pipeline::DrawTopTriangle(const VertexOut& out1, const VertexOut& out2, con
 					Color c = shader->FragmentShader(tmp);
 					*curP = Color2Uint32(c);
 				}
-				cur = cur + d;
+				cur += d;
 				curP++;
 			}
-			s = s + dleft;
-			e = e + dright;
+			s += dleft;
+			e += dright;
 		}
 	}
 	else
@@ -478,8 +478,8 @@ void Pipeline::DrawTopTriangle(const VertexOut& out1, const VertexOut& out2, con
 		{
 			tmps = s;
 			tmpe = e;
-			s = s + dleft;
-			e = e + dright;
+			s += dleft;
+			e += dright;
 			if (tmps.position.x < rect.x)
 			{
 				tmps.position.x = rect.x;
@@ -509,7 +509,7 @@ void Pipeline::DrawTopTriangle(const VertexOut& out1, const VertexOut& out2, con
 					Color c = shader->FragmentShader(tmp);
 					*curP = Color2Uint32(c);
 				}
-				cur = cur + d;
+				cur += d;
 				curP++;
 			}
 		}
@@ -543,8 +543,8 @@ void Pipeline::DrawBottomTriangle(const VertexOut& out1, const VertexOut& out2, 
 	if (newOut1.position.y < rect.y)
 	{
 		float dy = rect.y - newOut1.position.y;
-		s = s + dleft * dy;
-		e = e + dright * dy;
+		s += dleft * dy;
+		e += dright * dy;
 		newOut1.position.y = rect.y;
 		iy1 = Floor(newOut1.position.y);
 	}
@@ -552,8 +552,8 @@ void Pipeline::DrawBottomTriangle(const VertexOut& out1, const VertexOut& out2, 
 	{
 		iy1 = Ceil(newOut1.position.y);
 		float dy = iy1 - newOut1.position.y;
-		s = s + dleft * dy;
-		e = e + dright * dy;
+		s += dleft * dy;
+		e += dright * dy;
 	}
 
 	if (newOut3.position.y > rect.ymax())
@@ -589,11 +589,11 @@ void Pipeline::DrawBottomTriangle(const VertexOut& out1, const VertexOut& out2, 
 					Color c = shader->FragmentShader(tmp);
 					*curP = Color2Uint32(c);
 				}
-				cur = cur + d;
+				cur += d;
 				curP++;
 			}
-			s = s + dleft;
-			e = e + dright;
+			s += dleft;
+			e += dright;
 		}
 	}
 	else
@@ -604,8 +604,8 @@ void Pipeline::DrawBottomTriangle(const VertexOut& out1, const VertexOut& out2, 
 		{
 			tmps = s;
 			tmpe = e;
-			s = s + dleft;
-			e = e + dright;
+			s += dleft;
+			e += dright;
 			if (tmps.position.x < rect.x)
 			{
 				tmps.position.x = rect.x;
@@ -635,7 +635,7 @@ void Pipeline::DrawBottomTriangle(const VertexOut& out1, const VertexOut& out2, 
 					Color c = shader->FragmentShader(tmp);
 					*curP = Color2Uint32(c);
 				}
-				cur = cur + d;
+				cur += d;
 				curP++;
 			}
 		}

@@ -6,6 +6,14 @@ const Color Color::red = Color(1.0f, 0.0f, 0.0f);
 const Color Color::green = Color(0.0f, 1.0f, 0.0f);
 const Color Color::blue = Color(0.0f, 0.0f, 1.0f);
 
+Color& Color::operator+=(const Color& c)
+{
+	r += c.r;
+	g += c.g;
+	b += c.b;
+	return *this;
+}
+
 Color Color::operator+(const Color& c) const
 {
 	return Color(r + c.r, g + c.g, b + c.b);
@@ -28,7 +36,7 @@ Color Color::operator*(const Color& c) const
 
 Color Color::operator/(float k) const
 {
-	return Color(r / k, g / k, b / k);
+	return *this * (1.0f / k);
 }
 
 //Lerp≤Â÷µ

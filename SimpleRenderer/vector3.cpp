@@ -27,6 +27,15 @@ bool Vector3::operator!=(const Vector3& v)
 	return !(*this == v);
 }
 
+Vector3& Vector3::operator+=(const Vector3& v)
+{
+	x += v.x;
+	y += v.y;
+	z += v.z;
+	w += v.w;
+	return *this;
+}
+
 //向量加法
 Vector3 Vector3::operator+(const Vector3& v)
 {

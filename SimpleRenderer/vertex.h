@@ -19,14 +19,13 @@ public:
 	Color color;
 	float invz;
 
-	VertexOut operator+(const VertexOut& out)
+	VertexOut& operator+=(const VertexOut& out)
 	{
-		VertexOut res;
-		res.position = position + out.position;
-		res.texcoord = texcoord + out.texcoord;
-		res.color = color + out.color;
-		res.invz = invz + out.invz;
-		return res;
+		position += out.position;
+		texcoord += out.texcoord;
+		color += out.color;
+		invz += out.invz;
+		return *this;
 	}
 
 	VertexOut operator-(const VertexOut& out) const

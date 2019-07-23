@@ -59,6 +59,7 @@ public:
 	float& operator[](int idx);
 	bool operator==(const Vector3& v);
 	bool operator!=(const Vector3& v);
+	Vector3& operator+=(const Vector3& v);
 	Vector3 operator+(const Vector3& v);
 	Vector3 operator-(const Vector3& v) const;
 	Vector3 operator*(float f) const;
