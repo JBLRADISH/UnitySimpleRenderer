@@ -96,7 +96,7 @@ int main(int argc, char* args[])
 
 	cam = &Camera(60.0f, 0.3f, 1000.0f, Rect(0, 0, 800, 600));
 	cam->transform.SetPosition(Vector3(0.0f, 100.0f, -245.0f));
-	pipeline.SetViewPort(cam->viewport);
+	pipeline.SetViewPort(cam->viewport, cam->GetZNear());
 
 	pipeline.SetCullFace(true);
 	pipeline.SetPolygonMode(PolygonMode::Triangle);

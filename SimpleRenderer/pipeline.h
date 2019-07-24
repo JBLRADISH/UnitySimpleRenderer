@@ -48,7 +48,7 @@ public:
 	void SetCullFace(bool cullFace) { this->cullFace = cullFace; }
 
 	void SetScreenSurface(SDL_Surface* surface) { this->surface = surface; }
-	void SetViewPort(const Rect& rect) { this->rect = rect; }
+	void SetViewPort(const Rect& rect, float zNear) { this->rect = rect; this->zNear = zNear; }
 
 	void SetDepthTest(bool depthTest);
 	void ClearZBuffer(float data) { zBuffer.ClearZBuffer(data); }
@@ -80,10 +80,13 @@ private:
 	Material material;
 	bool cullFace;
 	Rect rect;
+	float zNear;
 	Light* light;
 	ZBuffer zBuffer;
 	bool depthTest;
 
+	void Draw(VertexOut& out1, VertexOut& out2, VertexOut& out3);
+	void ViewFrustumCull(VertexOut& out1, VertexOut& out2, VertexOut& out3);
 	bool CullFace_ScreenSpace(const VertexOut& out1, const VertexOut& out2, const VertexOut& out3);
 	void ScreenPoint(VertexOut& out);
 	void PerspectiveCorrection(VertexOut& out);

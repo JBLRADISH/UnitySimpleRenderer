@@ -123,29 +123,34 @@ void Pipeline::Draw(int idx, int count)
 		VertexOut out1 = shader->VertexShader(in1);
 		VertexOut out2 = shader->VertexShader(in2);
 		VertexOut out3 = shader->VertexShader(in3);
-		ScreenPoint(out1);
-		ScreenPoint(out2);
-		ScreenPoint(out3);
-		if (cullFace && !CullFace_ScreenSpace(out1, out2, out3))
-		{
-			continue;
-		}
-		if (polygonMode == PolygonMode::Point)
-		{
-			DrawPoint(out1.position.x, out1.position.y, Color::black);
-			DrawPoint(out2.position.x, out2.position.y, Color::black);
-			DrawPoint(out3.position.x, out3.position.y, Color::black);
-		}
-		else if (polygonMode == PolygonMode::Line)
-		{
-			DrawClipLine(out1.position.x, out1.position.y, out2.position.x, out2.position.y, Color::black);
-			DrawClipLine(out1.position.x, out1.position.y, out3.position.x, out3.position.y, Color::black);
-			DrawClipLine(out2.position.x, out2.position.y, out3.position.x, out3.position.y, Color::black);
-		}
-		else if (polygonMode == PolygonMode::Triangle)
-		{
-			DrawTriangle(out1, out2, out3);
-		}
+		ViewFrustumCull(out1, out2, out3);
+	}
+}
+
+void Pipeline::Draw(VertexOut& out1, VertexOut& out2, VertexOut& out3)
+{
+	ScreenPoint(out1);
+	ScreenPoint(out2);
+	ScreenPoint(out3);
+	if (cullFace && !CullFace_ScreenSpace(out1, out2, out3))
+	{
+		return;
+	}
+	if (polygonMode == PolygonMode::Point)
+	{
+		DrawPoint(out1.position.x, out1.position.y, Color::black);
+		DrawPoint(out2.position.x, out2.position.y, Color::black);
+		DrawPoint(out3.position.x, out3.position.y, Color::black);
+	}
+	else if (polygonMode == PolygonMode::Line)
+	{
+		DrawClipLine(out1.position.x, out1.position.y, out2.position.x, out2.position.y, Color::black);
+		DrawClipLine(out1.position.x, out1.position.y, out3.position.x, out3.position.y, Color::black);
+		DrawClipLine(out2.position.x, out2.position.y, out3.position.x, out3.position.y, Color::black);
+	}
+	else if (polygonMode == PolygonMode::Triangle)
+	{
+		DrawTriangle(out1, out2, out3);
 	}
 }
 
@@ -178,6 +183,60 @@ bool Pipeline::CullFace_ScreenSpace(const VertexOut& out1, const VertexOut& out2
 		return false;
 	}
 	return true;
+}
+
+//视锥体裁剪
+void Pipeline::ViewFrustumCull(VertexOut& out1, VertexOut& out2, VertexOut& out3)
+{
+	int vertex_codes[3], count = 0;
+	if (out1.position.z > out1.position.w) { vertex_codes[0] = 2; }
+	else if (out1.position.z < -out1.position.w) { vertex_codes[0] = 1; }
+	else { vertex_codes[0] = 0; count++; }
+	if (out2.position.z > out2.position.w) { vertex_codes[1] = 2; }
+	else if (out2.position.z < -out2.position.w) { vertex_codes[1] = 1; }
+	else { vertex_codes[1] = 0; count++; }
+	if (out3.position.z > out3.position.w) { vertex_codes[2] = 2; }
+	else if (out3.position.z < -out3.position.w) { vertex_codes[2] = 1; }
+	else { vertex_codes[2] = 0; count++; }
+	if ((vertex_codes[0] == 1 && vertex_codes[1] == 1 && vertex_codes[2] == 1) || (vertex_codes[0] == 2 && vertex_codes[1] == 2 && vertex_codes[2] == 2)) { return; }
+	PerspectiveCorrection(out1);
+	PerspectiveCorrection(out2);
+	PerspectiveCorrection(out3);
+	if (vertex_codes[0] == 1 || vertex_codes[1] == 1 || vertex_codes[2] == 1)
+	{
+		if (count == 1)
+		{
+			VertexOut* newOut1 = &out1;
+			VertexOut* newOut2 = &out2;
+			VertexOut* newOut3 = &out3;
+			if (vertex_codes[1] == 0) { newOut1 = &out2; newOut2 = &out3; newOut3 = &out1; }
+			else if (vertex_codes[2] == 0) { newOut1 = &out3; newOut2 = &out1; newOut3 = &out2; }
+			//w分量就是观察空间的z值
+			*newOut2 = VertexOut::Lerp(*newOut1, *newOut2, (newOut1->position.w - zNear) / (newOut1->position.w - newOut2->position.w));
+			newOut2->position.w = -newOut2->position.z;
+			*newOut3 = VertexOut::Lerp(*newOut1, *newOut3, (newOut1->position.w - zNear) / (newOut1->position.w - newOut3->position.w));
+			newOut3->position.w = -newOut3->position.z;
+			Draw(*newOut1, *newOut2, *newOut3);
+		}
+		else if (count == 2)
+		{
+			VertexOut* newOut1 = &out1;
+			VertexOut* newOut2 = &out2;
+			VertexOut* newOut3 = &out3;
+			if (vertex_codes[1] == 1) { newOut1 = &out2; newOut2 = &out3; newOut3 = &out1; }
+			else if (vertex_codes[2] == 1) { newOut1 = &out3; newOut2 = &out1; newOut3 = &out2; }
+			VertexOut newOut4 = VertexOut::Lerp(*newOut2, *newOut1, (newOut2->position.w - zNear) / (newOut2->position.w - newOut1->position.w));
+			newOut4.position.w = -newOut4.position.z;
+			*newOut1 = VertexOut::Lerp(*newOut3, *newOut1, (newOut3->position.w - zNear) / (newOut3->position.w - newOut1->position.w));
+			newOut1->position.w = -newOut1->position.z;
+			Draw(newOut4, *newOut2, *newOut3);
+			Draw(newOut4, *newOut3, *newOut1);
+		}
+	}
+	else
+	{
+		Draw(out1, out2, out3);
+	}
 }
 
 void Pipeline::DrawPoint(int x, int y, const Color& c)
@@ -394,9 +453,7 @@ void Pipeline::DrawTopTriangle(const VertexOut& out1, const VertexOut& out2, con
 	VertexOut newOut1 = out1;
 	VertexOut newOut2 = out2;
 	VertexOut newOut3 = out3;
-	PerspectiveCorrection(newOut1);
-	PerspectiveCorrection(newOut2);
-	PerspectiveCorrection(newOut3);
+
 	if (newOut2.position.x < newOut1.position.x)
 	{
 		VertexOut tmp = newOut2;
@@ -521,9 +578,7 @@ void Pipeline::DrawBottomTriangle(const VertexOut& out1, const VertexOut& out2, 
 	VertexOut newOut1 = out1;
 	VertexOut newOut2 = out2;
 	VertexOut newOut3 = out3;
-	PerspectiveCorrection(newOut1);
-	PerspectiveCorrection(newOut2);
-	PerspectiveCorrection(newOut3);
+
 	if (newOut3.position.x < newOut2.position.x)
 	{
 		VertexOut tmp = newOut3;
