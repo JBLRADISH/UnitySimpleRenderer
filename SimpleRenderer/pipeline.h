@@ -53,6 +53,8 @@ public:
 	void SetDepthTest(bool depthTest);
 	void ClearZBuffer(float data) { zBuffer.ClearZBuffer(data); }
 
+	void SetAlphaBlend(float alpha) { this->alpha = alpha; }
+
 	void DrawPoint(int x, int y, const Color& c);
 	void DrawHLine(int x1, int x2, int y, const Color& c);
 	void DrawVLine(int x, int y1, int y2, const Color& c);
@@ -84,6 +86,7 @@ private:
 	Light* light;
 	ZBuffer zBuffer;
 	bool depthTest;
+	float alpha;
 
 	void Draw(VertexOut& out1, VertexOut& out2, VertexOut& out3);
 	void ViewFrustumCull(VertexOut& out1, VertexOut& out2, VertexOut& out3);

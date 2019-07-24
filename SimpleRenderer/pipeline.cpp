@@ -504,8 +504,8 @@ void Pipeline::DrawTopTriangle(const VertexOut& out1, const VertexOut& out2, con
 		for (int i = iy1; i <= iy3; i++, start += surface->pitch >> 2)
 		{
 			VertexOut cur = s;
-			int ixs = Floor(s.position.x);
-			int ixe = Floor(e.position.x);
+			int ixs = Ceil(s.position.x);
+			int ixe = Ceil(e.position.x) - 1;
 			float invdx = 1.0f / (ixe - ixs);
 			Uint32* curP = start + ixs;
 			VertexOut d = (e - s) * invdx;
@@ -518,7 +518,7 @@ void Pipeline::DrawTopTriangle(const VertexOut& out1, const VertexOut& out2, con
 					tmp.color = cur.color * invz;
 					tmp.texcoord = cur.texcoord * invz;
 					Color c = shader->FragmentShader(tmp);
-					*curP = Color2Uint32(c);
+					*curP = Blend(Color2Uint32(c), *curP, alpha);
 				}
 				cur += d;
 				curP++;
@@ -550,8 +550,8 @@ void Pipeline::DrawTopTriangle(const VertexOut& out1, const VertexOut& out2, con
 					continue;
 			}
 			VertexOut cur = tmps;
-			int ileft = Floor(tmps.position.x);
-			int iright = Floor(tmpe.position.x);
+			int ileft = Ceil(tmps.position.x);
+			int iright = Ceil(tmpe.position.x) - 1;
 			float invdx = 1.0f / (iright - ileft);
 			Uint32* curP = start + ileft;
 			VertexOut d = (tmpe - tmps) * invdx;
@@ -564,7 +564,7 @@ void Pipeline::DrawTopTriangle(const VertexOut& out1, const VertexOut& out2, con
 					tmp.color = cur.color * invz;
 					tmp.texcoord = cur.texcoord * invz;
 					Color c = shader->FragmentShader(tmp);
-					*curP = Color2Uint32(c);
+					*curP = Blend(Color2Uint32(c), *curP, alpha);
 				}
 				cur += d;
 				curP++;
@@ -628,8 +628,8 @@ void Pipeline::DrawBottomTriangle(const VertexOut& out1, const VertexOut& out2, 
 		for (int i = iy1; i <= iy3; i++, start += surface->pitch >> 2)
 		{
 			VertexOut cur = s;
-			int ixs = Floor(s.position.x);
-			int ixe = Floor(e.position.x);
+			int ixs = Ceil(s.position.x);
+			int ixe = Ceil(e.position.x) - 1;
 			float invdx = 1.0f / (ixe - ixs);
 			Uint32* curP = start + ixs;
 			VertexOut d = (e - s) * invdx;
@@ -642,7 +642,7 @@ void Pipeline::DrawBottomTriangle(const VertexOut& out1, const VertexOut& out2, 
 					tmp.color = cur.color * invz;
 					tmp.texcoord = cur.texcoord * invz;
 					Color c = shader->FragmentShader(tmp);
-					*curP = Color2Uint32(c);
+					*curP = Blend(Color2Uint32(c), *curP, alpha);
 				}
 				cur += d;
 				curP++;
@@ -674,8 +674,8 @@ void Pipeline::DrawBottomTriangle(const VertexOut& out1, const VertexOut& out2, 
 					continue;
 			}
 			VertexOut cur = tmps;
-			int ileft = Floor(tmps.position.x);
-			int iright = Floor(tmpe.position.x);
+			int ileft = Ceil(tmps.position.x);
+			int iright = Ceil(tmpe.position.x) - 1;
 			float invdx = 1.0f / (iright - ileft);
 			Uint32* curP = start + ileft;
 			VertexOut d = (tmpe - tmps) * invdx;
@@ -688,7 +688,7 @@ void Pipeline::DrawBottomTriangle(const VertexOut& out1, const VertexOut& out2, 
 					tmp.color = cur.color * invz;
 					tmp.texcoord = cur.texcoord * invz;
 					Color c = shader->FragmentShader(tmp);
-					*curP = Color2Uint32(c);
+					*curP = Blend(Color2Uint32(c), *curP, alpha);
 				}
 				cur += d;
 				curP++;

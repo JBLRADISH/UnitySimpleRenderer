@@ -162,11 +162,22 @@ void Render()
 	pipeline.DrawClearColor(Color::white);
 	pipeline.ClearZBuffer(1.0f);
 
+	//天空盒
+	SkyBoxShader skyboxShader;
+	pipeline.SetShader(&skyboxShader);
+	pipeline.SetAlphaBlend(1.0f);
+	pipeline.shader->SetViewProjectionMatrix(cam->projectionMatrix() * cam->worldToCameraMatrix().IgnoreTranslate());
+	pipeline.BindBuffer(skyboxvbo);
+	pipeline.BindBuffer(skyboxibo);
+	pipeline.BindTexture(skyboxtbo);
+	pipeline.Draw(0, 6);
+
 	//物体剔除
 	if (!cam->OutSide(go->GetWorldBounds()))
 	{
 		GouraudShader gouraudShader;
 		pipeline.SetShader(&gouraudShader);
+		pipeline.SetAlphaBlend(0.5f);
 		pipeline.shader->SetModelMatrix(go->transform.localToWorldMatrix());
 		pipeline.shader->SetViewProjectionMatrix(cam->viewProjectionMatrix());
 		pipeline.BindBuffer(itemvbo);
@@ -174,15 +185,6 @@ void Render()
 		pipeline.BindTexture(itemtbo);
 		pipeline.Draw(0, go->mesh.faces.size() * 3);
 	}
-
-	//天空盒
-	SkyBoxShader skyboxShader;
-	pipeline.SetShader(&skyboxShader);
-	pipeline.shader->SetViewProjectionMatrix(cam->projectionMatrix() * cam->worldToCameraMatrix().IgnoreTranslate());
-	pipeline.BindBuffer(skyboxvbo);
-	pipeline.BindBuffer(skyboxibo);
-	pipeline.BindTexture(skyboxtbo);
-	pipeline.Draw(0, 6);
 
 	SDL_UpdateWindowSurface(render.window);
 }
