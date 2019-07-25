@@ -111,15 +111,15 @@ int main(int argc, char* args[])
 
 	while (!quit)
 	{
-		Uint32 startFrame = SDL_GetTicks();
+		//Uint32 startFrame = SDL_GetTicks();
 		Input();
 		Render();
-		Uint32 endFrame = SDL_GetTicks();
+		//Uint32 endFrame = SDL_GetTicks();
 		//if (endFrame - startFrame < render.ping)
 		//{
 		//	SDL_Delay(render.ping - endFrame + startFrame);
 		//}
-		cout << "FPS: " << 1000 / fmaxf(1, (endFrame - startFrame)) << endl;
+		//cout << "FPS: " << 1000 / fmaxf(1, (endFrame - startFrame)) << endl;
 	}
 
 	SDL_DestroyWindow(render.window);

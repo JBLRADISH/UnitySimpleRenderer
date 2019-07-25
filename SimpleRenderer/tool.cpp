@@ -16,11 +16,6 @@ Uint32 Blend(Uint32 p1, Uint32 p2, float k)
 	return (Round(r1 * k + r2 * (1 - k)) << 16) + (Round(g1 * k + g2 * (1 - k)) << 8) + Round(b1 * k + b2 * (1 - k));
 }
 
-Uint32 RGB2Uint32(int r, int g, int b)
-{
-	return (r << 16) + (g << 8) + b;
-}
-
 void ASM_MEMSET_DWORD(void* dest, Uint32 data, int count)
 {
 	_asm
